@@ -242,7 +242,7 @@ public class MaterialController {
         request.setOrders(orders);
 
         model.addAttribute("request", request);
-        return "/predict/materialPredictForm";
+        return "predict/materialPredictForm";
     }
 
     // 재료 발주 예측 flask로 전송후 반환값 출력
@@ -252,7 +252,7 @@ public class MaterialController {
                           Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "/predict/materialPredictForm"; // 입력폼 다시 보여줌
+            return "predict/materialPredictForm"; // 입력폼 다시 보여줌
         }
 
         MaterialPredictResult result = materialPredictService.getPrediction(request);
@@ -289,7 +289,7 @@ public class MaterialController {
             e.printStackTrace();
         }
 
-        return "/predict/materialPredictResult";
+        return "predict/materialPredictResult";
     }
 
 
