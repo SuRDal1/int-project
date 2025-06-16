@@ -1,0 +1,56 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<main class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold"><i class="fa-solid fa-square-xmark text-danger me-3"></i>주문 취소 리스트</h1>
+    <!-- 취소 주문 리스트 테이블 -->
+    <div class="table-responsive-xl mx-5 mt-5">
+        <table class="table table-bordered table-hover text-nowrap text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>제품명</th>
+                <th>수량</th>
+                <th>주문날짜</th>
+                <th>취소날짜</th>
+                <th>취소진행자</th>
+                <th>취소사유</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="canceled : ${cancelList}">
+                <th th:text="${canceled.id}"></th>
+                <th th:text="${canceled.productName.getLabel()}"></th>
+                <td th:text="${canceled.orderQuantity}"></td>
+                <td th:text="${#temporals.format(canceled.orderDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td th:text="${#temporals.format(canceled.canceledDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <th th:text="${canceled.users.name}"></th>
+                <td th:text="${canceled.canceledText}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!--  페이징 처리 -->
+    <nav aria-label="Page navigation" class="d-flex justify-content-center mt-3" style="background-color: #ffffff">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/list(page=${currentPage - 1}, size=15)}">이전</a>
+            </li>
+            <!--totalPages == 0 일 때는 1만 표시 -->
+            <li class="page-item active" th:if="${totalPages == 0}">
+                <a class="page-link">1</a>
+            </li>
+            <!--그 외에는 정상 시퀀스 출력 -->
+            <li class="page-item"
+                th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                th:if="${totalPages > 0}"
+                th:classappend="${pageNum == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/order/list(page=${pageNum}, size=15)}"
+                   th:text="${pageNum + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/order/list(page=${currentPage + 1}, size=15)}">다음</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+</html>

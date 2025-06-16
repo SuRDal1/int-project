@@ -1,0 +1,74 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold mb-3 p-2"><i class="bi bi-graph-up-arrow me-3" style="color: #ff8a44;"></i>제품 품질 예측하기</h1>
+    <p>현재 LSTM 모델은 입력된 상열온도(좌/중/우) 데이터를 바탕으로 완성된 제품의 불량여부를 예측하도록 학습되었습니다.</p>
+    <p>좌우의 상열온도(℃)는 약 215.0 ~ 221.0, 중앙의 상열온도(℃)는 약 215.0 ~ 231.0사이 값으로 입력할 수 있습니다.</p>
+    <!-- 폼 시작 -->
+    <form role="form"  th:object="${request}" method="post">
+        <div class="d-flex align-items-baseline">
+            <div><h3 class="my-5 fw-bold">제품 공정값 입력</h3></div>
+            <!-- 제품명 선택란 -->
+            <div class="mx-md-2 mx-lg-5">
+                <select class="form-control" id="materialSelect" onchange="syncProductName(this.value)"  th:field="*{orders[0].productName}">
+                    <option value="">제품을 선택하세요.</option>
+                    <option th:each="productName : ${T(com.intarea.intarea.domain.ProductName).values()}"  th:if="${productName.name() == 'LAMP_COVER'}" th:text="${productName.getLabel()}" th:value="${productName}"></option>
+                </select>
+            </div>
+            <!-- 결정 버튼 -->
+            <button type="submit" class="btn btn-point">예측하기</button>
+        </div>
+        <div class="row">
+            <!-- 입력란 시작 -->
+            <div class="col-md py-5">
+                <!-- 입력 테이블 -->
+                <table class="table" id="order Table">
+                    <thead>
+                        <tr>
+                            <th scope="col">상열온도(좌)(℃)</th>
+                            <th scope="col">상열온도(중)(℃)</th>
+                            <th scope="col">상열온도(우)(℃)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" name="temp" type="number" step="0.001" min="215" max="221" th:field="*{orders[0].leftHighTemp}"></td>
+                            <td><input class="form-control" name="press" type="number" step="0.001" min="215" max="231" th:field="*{orders[0].midHighTemp}"></td>
+                            <td><input class="form-control" name="press" type="number" step="0.001" min="215" max="221" th:field="*{orders[0].rightHighTemp}"></td>
+                            <input type="hidden" th:field="*{orders[0].productName}" id="productName">
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- 누락값 메시지 -->
+                <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
+                    <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}">전체 오류 메세지</div>
+                </div>
+            </div>
+            <!-- 입력란 끝 -->
+            <!-- 결과 출력란 시작 -->
+            <div class="col-md">
+                <h3 class="fw-bold mb-5">📊 예측 결과</h3>
+                <div class="pt-2 ms-3">
+                    <h4 th:if="${prediction != null}">예측결과 : 완성된 제품은 <span class="fs-3" th:text="${prediction} ? '❌ 불량' : '⭕ 정상'" th:classappend="${prediction} ? 'text-danger' : 'text-primary'"></span> 입니다.</h4>
+                </div>
+            </div>
+            <!-- 결과 출력란 끝 -->
+        </div>
+    </form>
+    <hr>
+    <!-- 입력란 초기화 버튼 폼 시작 -->
+    <div class="d-flex justify-content-end">
+        <form th:action="@{/process/b/predict}" method="get">
+            <button type="submit" class="btn btn-main">다시 입력</button>
+        </form>
+        <a role="button" class="btn btn-main ms-3" th:href="@{/}">돌아가기</a>
+    </div>
+    <!-- 입력란 초기화 버튼 폼 끝 -->
+</div>
+<!--제품명 통일 스크립트 -->
+<script layout:fragment="script">
+    // 제품명 통일
+    function syncProductName(value) {
+        document.getElementById("productName").value = value;
+    }
+</script>
+</html>

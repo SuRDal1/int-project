@@ -1,0 +1,69 @@
+<html layout:decorate="~{layout.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<main class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold"><i class="fa-solid fa-users me-3"></i>회사 [[${company.label}]] 주문 내역</h1>
+    <div class="mx-4 py-3">
+        <div class="table-responsive my-4">
+            <h4 class="fw-bold"><i class="bi bi-calendar-date me-3"></i>일별 주문 합계</h4>
+            <table class="table table-hover text-nowrap">
+                <thead>
+                <tr>
+                    <th>날짜</th>
+                    <th>총 수량</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${dailyTotals.entrySet()}">
+                    <td th:text="${#temporals.format(entry.key,'yyyy-MM-dd')}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive my-4">
+            <h4 class="fw-bold"><i class="bi bi-calendar-month me-3"></i>월별 주문 합계</h4>
+            <table class="table table-hover text-nowrap">
+                <thead>
+                <tr>
+                    <th>월</th>
+                    <th>총 수량</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${monthlyTotals.entrySet()}">
+                    <td th:text="${entry.key.year} + '-' + ${entry.key.monthValue}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="py-3">
+            <h4 class="fw-bold">📄 주문 내역 정리</h4>
+            <div class="table-responsive my-4">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>주문 ID</th>
+                        <th>제품</th>
+                        <th>수량</th>
+                        <th>주문일</th>
+                        <th>공정예정일</th>
+                        <th>담당 직원</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ord : ${orders}">
+                        <td th:text="${ord.id}"></td>
+                        <td th:text="${ord.productName.label}"></td>
+                        <td th:text="${ord.orderQuantity}"></td>
+                        <td th:text="${#temporals.format(ord.orderDate,'yyyy-MM-dd hh:mm')}"></td>
+                        <td th:text="${#temporals.format(ord.processDate,'yyyy-MM-dd')}"></td>
+                        <td th:text="${ord.users.name}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <a th:href="@{/admin}" class="btn btn-outline-secondary">뒤로가기</a>
+    </div>
+</main>
+</html>

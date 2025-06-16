@@ -1,0 +1,349 @@
+<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<div class="container my-5" layout:fragment="content">
+    <!-- 주문 영역 시작 -->
+    <div class="row align-items-stretch gy-4" style="min-height: 500px;">
+        <!-- 왼쪽: 제품 주문 폼 -->
+        <div class="col-md-6 d-flex">
+            <div class="card p-4 w-100 h-100 d-flex flex-column justify-content-between">
+                <h3 class="fw-bold mb-5 text-center">제품 주문</h3>
+                <!-- thymeleaf 폼 시작 -->
+                <form th:action="@{/order}" th:object="${orderForm}" method="post" class="flex-grow-1 d-flex flex-column justify-content-between">
+                    <!-- 제품명 -->
+                    <div class="mb-3 px-4">
+                        <label class="fw-bold d-block mb-3 text-start" style="margin-left: 0.25rem;">제품명</label>
+                        <div class="d-flex flex-wrap " style="gap: 8px;">
+                            <div th:each="type : ${productName}" style="flex: 1 0 calc(50% - 8px); max-width: 48%;">
+                                <input type="radio"
+                                       th:field="*{productName}"
+                                       th:value="${type}"
+                                       class="btn-check product-radio"
+                                       th:id="${type}"
+                                       th:data-img="${type.imageUrl}"
+                                       autocomplete="off">
+                                <label class="btn btn-outline-dark w-100 py-1 px-2 text-center"
+                                       th:for="${type}" th:text="${type.getLabel()}"
+                                       style="font-size: 0.85rem;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 수량 버튼 -->
+                    <div class="pt-2 px-4">
+                        <label class="fw-bold mb-2 d-block text-start mt-3">수량</label>
+                        <div class="d-flex justify-content-center align-items-center border rounded-pill px-2 mb-3"
+                             style="width: fit-content; margin: 0 auto;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="decrease-btn">-
+                            </button>
+                            <input type="text"
+                                   id="quantity-input"
+                                   name="orderQuantity"
+                                   class="form-control text-center border-0 px-2"
+                                   th:value="${orderForm.orderQuantity != null ? orderForm.orderQuantity : 0}"
+                                   style="width: 60px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="increase-btn">+
+                            </button>
+                            <div class="field-error" th:errors="*{orderQuantity}"></div>
+                        </div>
+                    </div>
+                    <!-- 공정시작일 입력란 -->
+                    <div class="pt-3 px-4">
+                        <p class="fw-bold mb-3">공정예정일</p>
+                        <input class="form-control mb-2" type="date" th:field="*{processDate}" th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <!-- 주문처 선택 버튼 -->
+                    <div class="pt-3 px-4">
+                        <p class="text-start fw-bold mb-3">주문처</p>
+                        <div class="d-flex justify-content-center">
+                            <div class="d-flex" style="overflow-x: auto; white-space: nowrap; gap: 12px; padding-bottom: 6px;">
+                                <!-- 개별 버튼 -->
+                                <div th:each="company : ${orderCompany}">
+                                    <input type="radio" th:field="*{orderCompany}" th:value="${company}" class="btn-check company-radio" th:id="${company}" autocomplete="off">
+                                    <label class="btn btn-outline-dark px-4 py-2"
+                                           th:for="${company}"
+                                           th:text="${company.getLabel()}"
+                                           style="min-width: 90px; font-size: 0.95rem;">
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 장바구니 담기 버튼 -->
+                    <div class="text-end mt-4">
+                        <button type="submit" th:formaction="@{/order/cart/add}" formmethod="post"  class="btn btn-outline-main">장바구니 담기</button>
+                        <a role="button" class="btn btn-secondary ms-2" th:href="@{/}">취소</a>
+                    </div>
+                    <!-- 누락값 알림창 -->
+                    <div class="alert py-3 mt-3" role="alert" th:if="${#fields.hasAnyErrors()}">
+                        <div class="field-error fw-bold my-3" th:each="err : ${#fields.allErrors()}" th:text="${err}">오류 메시지</div>
+                        <a class="btn btn-warning rounded-4" th:href="@{/material}">재료 주문하기</a>
+                    </div>
+                </form>
+                <!-- thymeleaf 폼 끝 -->
+            </div>
+        </div>
+        <!-- 오른쪽: 제품 이미지 표시 영역 -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <!-- 비율 강제하고, 내부는 꽉 차게 (잘림 감수) -->
+            <div style="aspect-ratio: 3 / 2;" class="w-100 h-100 d-flex align-items-center justify-content-center border rounded shadow overflow-hidden">
+                <img id="product-image"
+                     th:src="${selectedProductImageUrl != null ? selectedProductImageUrl : '/image/productHere.png'}"
+                     class="img-fluid w-100 h-100"
+                     style="object-fit: cover;"
+                     alt="제품 이미지">
+            </div>
+        </div>
+    </div>
+    <!-- 주문 영역 끝 -->
+    <!-- 장바구니 영역 시작 -->
+    <hr class="my-5">
+    <div id="shoppingCart" class="container mt-4 s-target">
+        <h4 class="fw-bold mb-4">🛒 장바구니 목록</h4>
+        <!-- 카드 목록 영역 -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col" th:each="item, itemStat : ${cart}">
+                <div class="card shadow rounded-4 h-100 border-light">
+                    <div class="card-body d-flex flex-column justify-content-between p-4">
+                        <!-- 제품명 -->
+                        <h5 class="card-title fw-bold text-dark mb-3" th:text="${item.productName.label}">제품명</h5>
+                        <!-- 정보 목록 -->
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2">
+                                <span class="fw-semibold text-secondary">수량:</span>
+                                <span class="ms-2 text-dark fw-bold" th:text="${item.orderQuantity}">0</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="fw-semibold text-secondary">공정예정일:</span>
+                                <span class="ms-2 text-dark fw-bold" th:text="${item.processDate}">0000-00-00</span>
+                            </li>
+                            <li>
+                                <span class="fw-semibold text-secondary">주문처:</span>
+                                <span class="ms-2 text-dark fw-bold" th:text="${item.orderCompany.getLabel()}">회사명</span>
+                            </li>
+                        </ul>
+                        <!-- 삭제 버튼 -->
+                        <form th:action="@{/order/cart/delete}" method="post" class="text-end">
+                            <input type="hidden" name="index" th:value="${itemStat.index}" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm px-3">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- 장바구니 비어 있을 경우 -->
+            <div class="col" th:if="${cart.size() == 0}">
+                <div class="card text-center text-muted border-0">
+                    <div class="card-body py-5">
+                        <p class="mb-0">장바구니에 담긴 제품이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 장바구니 영역 끝 -->
+    <!-- 주문 버튼 -->
+    <form th:action="@{/order/cart/checkout}" method="post" class="text-end mt-4">
+        <button type="submit" class="btn btn-main px-4 py-2">장바구니 주문하기</button>
+    </form>
+    <!--Modal-->
+    <!-- 제품명 미선택 모달 -->
+    <div class="modal fade" id="productNameAlertModal" tabindex="-1" aria-labelledby="productNameAlertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title" id="productNameAlertModalLabel">알림</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center">
+                    제품명을 선택해 주세요.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 0개를 입력했을 떄 뜨는 모달 -->
+    <div class="modal fade" id="quantityAlertModal" tabindex="-1" aria-labelledby="quantityAlertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title" id="quantityAlertModalLabel">알림</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center">
+                    수량은 1개 이상이어야 장바구니에 담을 수 있습니다.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 부족한 재료 안내 모달 -->
+    <div class="modal fade" id="materialErrorModal" tabindex="-1" aria-labelledby="materialErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title" id="materialErrorModalLabel">재료 부족</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center text-danger fw-bold">
+                    <span th:text="${materialError}">재료가 부족합니다</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 공정예정일 미입력 모달 -->
+    <div class="modal fade" id="processDateAlertModal" tabindex="-1" aria-labelledby="processDateAlertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title" id="processDateAlertModalLabel">알림</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center">
+                    공정 예정일을 선택해 주세요.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 주문처 미입력 모달 -->
+    <div class="modal fade" id="companyAlertModal" tabindex="-1" aria-labelledby="processDateAlertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title" id="processDateAlertModalLabel">알림</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center">
+                    주문처를 선택해 주세요.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 장바구니 비었을 때 알림 모달 -->
+    <div class="modal fade" id="emptyCartModal" tabindex="-1" aria-labelledby="emptyCartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title" id="emptyCartModalLabel">알림</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body text-center">
+                    장바구니에 제품을 먼저 담아주세요.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 전체 보조용 스크립트 -->
+<script layout:fragment="script" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        // 수량 입력 버튼용 변수 선언
+        const quantityInput = document.getElementById('quantity-input');
+        const increaseBtn = document.getElementById('increase-btn');
+        const decreaseBtn = document.getElementById('decrease-btn');
+        const productRadios = document.querySelectorAll('.product-radio');
+        const productImage = document.getElementById('product-image');
+        const processDateInput = document.querySelector('input[name="processDate"]');
+
+        // 수량 조절 버튼
+        decreaseBtn.addEventListener('click', () => {
+            let val = parseInt(quantityInput.value);
+            if (!isNaN(val) && val > 1) quantityInput.value = val - 1;
+        });
+
+        increaseBtn.addEventListener('click', () => {
+            let val = parseInt(quantityInput.value);
+            if (!isNaN(val)) quantityInput.value = val + 1;
+        });
+
+        // 이미지 변경
+        productRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const imgUrl = radio.dataset.img;
+                if (imgUrl) {
+                    productImage.src = imgUrl;
+                }
+            });
+        });
+
+        // 장바구니 유효성 검사 (담기용)
+        const cartBtn = document.querySelector('button[formaction="/order/cart/add"]');
+        cartBtn.addEventListener('click', function (event) {
+            let quantity = parseInt(quantityInput.value);
+            let processDate = processDateInput.value;
+            const selectedProduct = document.querySelector('.product-radio:checked');
+            const selectedCompany = document.querySelector('.company-radio:checked');
+
+
+            // 제품명 선택 안 했을 때
+            if (!selectedProduct) {
+                event.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('productNameAlertModal'));
+                modal.show();
+                return;
+            }
+
+            // 수량 1 미만일 때
+            if (isNaN(quantity) || quantity < 1) {
+                event.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('quantityAlertModal'));
+                modal.show();
+                return;
+            }
+
+            // 공정예정일 입력 안 했을 때
+            if (!processDate) {
+                event.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('processDateAlertModal'));
+                modal.show();
+            }
+
+            // 주문처 입력 안 했을 때
+            if (!selectedCompany) {
+                event.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('companyAlertModal'));
+                modal.show();
+            }
+        });
+
+
+        // 장바구니 비었는지 체크 (주문하기용)
+        const checkoutBtn = document.querySelector('form[action="/order/cart/checkout"] button[type="submit"]');
+        checkoutBtn.addEventListener('click', function (event) {
+            const cartItems = document.querySelectorAll('#shoppingCart .card');
+            const emptyMessage = document.querySelector('#shoppingCart .text-muted');
+            const hasItems = cartItems.length > 0 && !emptyMessage;
+
+            if (!hasItems) {
+                event.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('emptyCartModal'));
+                modal.show();
+            }
+        });
+
+
+        // 재료 부족으로 인한 주문 실패 알림 모달
+        const materialErrorMessage = /*[[${materialError}]]*/ '';
+        if (materialErrorMessage && materialErrorMessage !== '') {
+            const modal = new bootstrap.Modal(document.getElementById('materialErrorModal'));
+            modal.show();
+        }
+    });
+</script>
+</html>

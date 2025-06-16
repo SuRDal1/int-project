@@ -1,0 +1,117 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold mb-4"><i class="bi bi-bar-chart-line-fill" style="color: #ff8a44;"></i> 예측 결과</h1>
+    <!-- 예측 탭 버튼 -->
+    <div class="nav nav-pills mb-3" id="predict-tab" role="tablist">
+        <div class="p-1">
+            <button class="nav-link active" id="d3-tab"
+                    data-bs-toggle="pill" data-bs-target="#d3" type="button" role="tab"
+                    aria-controls="d3" aria-selected="true" onclick="fetchPrediction('D3')">
+                3일 후 예측
+            </button>
+        </div>
+        <div class="p-1">
+            <button class="nav-link" id="d5-tab"
+                    data-bs-toggle="pill" data-bs-target="#d5" type="button" role="tab"
+                    aria-controls="d5" aria-selected="false" onclick="fetchPrediction('D5')">
+                5일 후 예측
+            </button>
+        </div>
+    </div>
+    <!-- 예측 내용 영역 -->
+    <div class="tab-content p-2" id="predict-tabContent">
+        <div class="tab-pane fade show active" id="d3" role="tabpanel" aria-labelledby="d3-tab">
+            <p class="fw-bold mb-2">예측일자: <span id="predictedDate-d3">-</span></p>
+            <p class="fw-bold mb-3">예측 수량: <span id="predictedQty-d3">-</span>개</p>
+            <canvas id="predictionChart-d3" width="600" height="300"></canvas>
+        </div>
+        <div class="tab-pane fade" id="d5" role="tabpanel" aria-labelledby="d5-tab">
+            <p class="fw-bold mb-2">예측일자: <span id="predictedDate-d5">-</span></p>
+            <p class="fw-bold mb-3">예측 수량: <span id="predictedQty-d5">-</span>개</p>
+            <canvas id="predictionChart-d5" width="600" height="300"></canvas>
+        </div>
+    </div>
+    <!-- 다시 예측 버튼 -->
+    <div class="text-end mt-3">
+        <a th:href="@{/material/predict}" class="btn btn-secondary">다시 예측하기</a>
+    </div>
+</div>
+<!-- 스크립트 -->
+<script th:inline="javascript" layout:fragment="script">
+
+    // 차트 작성용 스크립트
+    const charts = {};
+
+    function initChart(tabId, labels, data) {
+
+        const ctx = document.getElementById(`predictionChart-${tabId}`).getContext('2d');
+
+        if (charts[tabId]) charts[tabId].destroy(); // 기존 차트 제거
+
+        charts[tabId] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '발주 수량',
+                    data: data,
+                    borderWidth: 1,
+                    backgroundColor: data.map((_, idx) =>
+                        idx === data.length - 1 ? 'rgba(255, 138, 68, 1)' : 'rgba(255, 138, 68, 0.2)'
+                    ),
+                    borderColor: data.map((_, idx) =>
+                        idx === data.length - 1 ? 'rgba(255, 138, 68, 1)' : 'rgba(255, 138, 68, 0.5)'
+                    )
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataIndex === data.length - 1) {
+                                    return `★ 예측 수량: ${context.raw}개`;
+                                }
+                                return `수량: ${context.raw}개`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 두 결과가 각기 다른 모델 및 flask주소를 사용하므로 이것이 필요 -> 입력은 어짜피 거의 같은 방식을 사용하는 상태 -> 두 결과 + 두 날짜를 반환하는 형태로 api 축소 진행?
+    function fetchPrediction(predictType) {
+
+        const tabId = predictType === 'D3' ? 'd3' : 'd5';
+
+        const requestData = {
+            predictType: predictType,
+            orders: JSON.parse(/*[[${ordersJson}]]*/)
+        };
+
+        fetch('/material/predict/api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById(`predictedDate-${tabId}`).innerText = data.predictedDate;
+                document.getElementById(`predictedQty-${tabId}`).innerText = Math.round(data.prediction);
+                initChart(tabId, data.chartLabels, data.chartData);
+            })
+            .catch(err => console.error('예측 요청 실패:', err));
+    }
+
+    // 페이지 로드시 기본 탭(D3) 로드
+    window.onload = function() {
+        fetchPrediction('D3');
+    }
+</script>
+</html>

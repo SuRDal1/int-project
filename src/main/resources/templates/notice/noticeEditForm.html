@@ -1,0 +1,35 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<main class="container mt-4" layout:fragment="content">
+    <div class="card shadow p-4 col-md-8 mx-auto mt-5">
+        <div class="card-header bg-white border-0">
+            <h2 class="text-center fw-bold">공지사항 수정</h2>
+        </div>
+        <div class="card-body">
+            <form th:object="${noticeForm}" method="post">
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                    <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">제목</label>
+                    <input type="text" class="form-control" th:field="*{title}" id="title">
+                    <div class="field-error text-danger mt-1" th:errors="*{title}"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="content" class="form-label fw-bold">내용</label>
+                    <textarea class="form-control" rows="8" th:field="*{content}" id="content"></textarea>
+                    <div class="field-error text-danger mt-1" th:errors="*{content}"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-point w-100">수정</button>
+                        <a th:href="@{/notice}" class="btn btn-main w-100 mt-2">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</html>

@@ -1,0 +1,48 @@
+<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container" layout:fragment="content">
+    <main class="d-flex justify-content-center align-items-center mt-5">
+        <div class="card p-5" style="max-width: 500px; width: 100%;">
+            <div class="card-body">
+                <h3 class="text-center mb-4 fw-bold">회원 등록</h3>
+                <form role="form" th:object="${userForm}" method="post">
+                    <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                        <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">ID</label>
+                        <input type="text" class="form-control" th:field="*{loginId}" th:errorclass="field-error" placeholder="아이디를 입력하세요.">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">PASSWORD</label>
+                        <input type="password" class="form-control" th:field="*{password}" th:errorclass="field-error" placeholder="비밀번호를 입력하세요.">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">NAME</label>
+                        <input type="text" class="form-control" th:field="*{name}" th:errorclass="field-error" placeholder="성명을 입력하세요.">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">E-MAIL</label>
+                        <input type="email" class="form-control" th:field="*{email}" th:errorclass="field-error" placeholder="이메일을 입력하세요.">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">TEL</label>
+                        <input type="tel" class="form-control" th:field="*{phone}" th:errorclass="field-error" placeholder="전화번호를 입력하세요.">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">GRADE</label>
+                        <select th:field="*{grade}" th:errorclass="field-error" class="form-select">
+                            <option value="">직급을 선택하세요.</option>
+                            <option th:each=" grade : ${T(com.intarea.intarea.domain.Grade).values()}"
+                                    th:text="${grade}" th:value="${grade}"></option>
+                        </select>
+                    </div>
+                    <div class="text-center my-5">
+                        <button type="submit" class="btn btn-main">회원 등록</button>
+                        <a th:href="@{/admin/user/list}" class="ms-3 px-4 btn btn-main">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</html>

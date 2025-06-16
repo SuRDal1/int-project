@@ -1,0 +1,94 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold mb-3 p-2">
+        <i class="bi bi-graph-up-arrow me-3" style="color: #FF0000;"></i>재료 발주 예측하기
+    </h1>
+    <p> 현재 LSTM 모델은 연속된 3일치 데이터를 입력받아, 해당 시점 기준으로 <strong>3일 후</strong> 및 <strong>5일 후</strong>의 발주 수량을 예측할 수 있도록 설계·학습되었습니다.</p>
+
+    <!-- 폼 시작 -->
+    <form role="form" th:object="${request}" method="post">
+        <!-- 예측 기준일: 숨겨진 고정값 -->
+        <input type="hidden" th:field="*{predictType}" value="D3">
+
+        <div class="d-flex align-items-baseline">
+            <h3 class="my-5 fw-bold">발주 입력</h3>
+            <div class="mx-md-2 mx-lg-5">
+                <select class="form-control" id="materialSelect" onchange="syncMaterialName(this.value)" th:field="*{orders[0].materialName}">
+                    <option value="">원자재를 선택하세요.</option>
+                    <option th:each="MaterialName : ${T(com.intarea.intarea.domain.MaterialName).values()}"
+                            th:text="${MaterialName}" th:value="${MaterialName}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md">
+                <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
+                    <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}">전체 오류 메세지</div>
+                </div>
+                <table class="table" id="orderTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">날짜</th>
+                        <th scope="col">수량</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><input class="form-control" type="date" th:field="*{orders[0].date}"></td>
+                        <td><input class="form-control" type="number" th:field="*{orders[0].qty}"></td>
+                        <input type="hidden" th:field="*{orders[0].materialName}" id="material0">
+                    </tr>
+                    <tr>
+                        <td><input class="form-control" type="date" readonly th:field="*{orders[1].date}"></td>
+                        <td><input class="form-control" type="number" th:field="*{orders[1].qty}"></td>
+                        <input type="hidden" th:field="*{orders[1].materialName}" id="material1">
+                    </tr>
+                    <tr>
+                        <td><input class="form-control" type="date" readonly th:field="*{orders[2].date}"></td>
+                        <td><input class="form-control" type="number" th:field="*{orders[2].qty}"></td>
+                        <input type="hidden" th:field="*{orders[2].materialName}" id="material2">
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <hr>
+        <!-- 버튼 묶음 -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-point">예측하기</button>
+            <a href="/material/predict" class="btn btn-main">다시 입력</a>
+        </div>
+    </form>
+    <!-- 폼 끝 -->
+
+</div>
+<!-- 스크립트 -->
+<script layout:fragment="script">
+    function syncMaterialName(value) {
+        document.getElementById("material0").value = value;
+        document.getElementById("material1").value = value;
+        document.getElementById("material2").value = value;
+    }
+
+    // 날짜 자동 채우기
+    document.addEventListener('DOMContentLoaded', function () {
+        const date0 = document.querySelector('[name="orders[0].date"]');
+        const date1 = document.querySelector('[name="orders[1].date"]');
+        const date2 = document.querySelector('[name="orders[2].date"]');
+
+        date0.addEventListener('change', function () {
+            const selectedDate = new Date(this.value);
+            if (isNaN(selectedDate.getTime())) return;
+
+            const nextDay1 = new Date(selectedDate);
+            nextDay1.setDate(selectedDate.getDate() + 1);
+            date1.value = nextDay1.toISOString().split('T')[0];
+
+            const nextDay2 = new Date(selectedDate);
+            nextDay2.setDate(selectedDate.getDate() + 2);
+            date2.value = nextDay2.toISOString().split('T')[0];
+        });
+    });
+</script>
+</html>

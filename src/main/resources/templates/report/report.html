@@ -1,0 +1,589 @@
+<html id="page-top"  layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <h1 class="fw-bold"><i class="fa-solid fa-house me-3"></i>전체 레포트</h1>
+    <!-- 스크롤스파이 시작 -->
+    <nav id="navbar-spy" class="navbar navbar-expand-lg  bg-body-tertiary rounded-2 px-2 py-3 mx-3 my-5" style="border: 1px solid #B8CDCE;">
+        <ul class="nav nav-pills justify-content-start flex-wrap gap-2">
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-main rounded-4 px-3" href="#scrollspyHeading1">전체 제품 확인</a>
+            </li>
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-main rounded-4 px-4" href="#scrollspyHeading2">제품별 차트</a>
+            </li>
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-main rounded-4 px-4" href="#scrollspyHeading3">주문별 차트</a>
+            </li>
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-main rounded-4 px-3" href="#scrollspyHeading4">회사별 차트</a>
+            </li>
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-main rounded-4 px-3" href="#scrollspyHeading5">예측 기능</a>
+            </li>
+            <li class="nav-item mx-3 my-2">
+                <a class="nav-link btn btn-point rounded-4 px-3" th:href="@{/order/list}">전체 제품 조회</a>
+            </li>
+        </ul>
+    </nav>
+    <!-- 스크롤스파이 끝 -->
+    <!--  제품 리포트 차트 영역 시작 -->
+    <div class="accordion mx-4" id="adminAccordion">
+        <h3 class="fw-bold py-3">🧱 제품 정보 조회</h3>
+        <!-- 전체 제품 리스트 아코디언 영역 -->
+        <div class="accordion-item s-target" id="scrollspyHeading1">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <span class="fw-bold fs-5 ms-3 my-2">전체 제품 확인</span>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#adminAccordion">
+                <div class="accordion-body">
+                    <div class="my-5 text-center">
+                        <canvas id="allProductChart" class="accordion-chart"></canvas>
+                    </div>
+                    <div class="my-3">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 제품별 차트 아코디언 영역-->
+        <div class="accordion-item s-target" id="scrollspyHeading2">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    <span class="fw-bold fs-5 ms-3 my-2">제품별 차트</span>
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#adminAccordion">
+                <div class="accordion-body">
+                    <!-- 제품 선택 드롭다운 + 차트 출력 -->
+                    <div class="d-flex align-items-center my-3">
+                        <label for="productSelect" class="ms-3 me-2">제품 선택</label>
+                        <select id="productSelect" class="form-select w-auto">
+                            <option value="">-제품 선택-</option>
+                            <option value="FLOWER_POT">화분</option>
+                            <option value="VASE">꽃병</option>
+                            <option value="BASKET">바구니</option>
+                            <option value="STORAGE_BOX">수납함</option>
+                            <option value="FRAME">액자</option>
+                            <option value="LAMP_COVER">램프 커버</option>
+                        </select>
+                    </div>
+                    <div class="my-5 text-center">
+                        <p id="nonProduct"></p>
+                        <canvas id="productNameChart"></canvas>
+                        <p class="text-muted mt-5">차트를 누르면 상세 내용을 확인가능 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 주문별 차트 아코디언 영역 -->
+        <div class="accordion-item s-target" id="scrollspyHeading3">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                    <span class="fw-bold fs-5 ms-3 my-2">주문별 차트</span>
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#adminAccordion">
+                <div class="accordion-body">
+                    <!-- 주문 선택 드롭다운 + 차트 출력 -->
+                    <div class="d-flex align-items-center my-3">
+                        <label for="orderSelect" class="ms-3 me-2">주문 선택</label>
+                        <select id="orderSelect" class="form-select w-auto">
+                            <option value="">-주문 선택-</option>
+                            <th:block th:each="order : ${orders}">
+                                <option th:value="${order.id}" th:text="${order.id}">주문 ID: </option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="my-5 text-center">
+                        <p id="nonOrder"></p>
+                        <canvas id="orderChart"></canvas>
+                        <p class="text-muted mt-5">차트를 누르면 상세 내용을 확인가능 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 회사별 차트 아코디언 영역 -->
+        <div class="accordion-item s-target" id="scrollspyHeading4">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseFour"
+                        aria-expanded="false"
+                        aria-controls="collapseFour">
+                    <span class="fw-bold fs-5 ms-3 my-2">회사별 차트</span>
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#adminAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <label for="companySelect" class="me-2">회사 선택</label>
+                        <select id="companySelect" class="form-select w-auto">
+                            <option value="">- 회사 선택 -</option>
+                            <th:block th:each="comp : ${orderCompanies}">
+                                <option th:value="${comp.name()}" th:text="${comp.label}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="text-center my-4">
+                        <p id="nonCompany" class="text-center"></p>
+                        <canvas id="companyChartCanvas" width="400" height="200"></canvas>
+                        <p class="text-muted mt-5">차트를 누르면 상세 내용을 확인가능 합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  제품 리포트 차트 영역 끝 -->
+    <!-- 관리자용 접근 메뉴 시작-->
+    <div class="py-5 mx-4">
+        <h3 class="fw-bold py-3 s-target" id="scrollspyHeading5">📊 예측 기능</h3>
+        <nav class="navbar navbar-expand-lg bg-white mb-5">
+            <ul class="navbar-nav">
+                <li>
+                    <a th:href="@{/material/predict}" class="btn btn-outline-main px-4 py-2 mx-2 my-2 rounded-4">재료 발주량 예측</a>
+                </li>
+                <li>
+                    <a th:href="@{/process/a/predict}" class="btn btn-outline-main px-4 py-2 mx-2 my-2 rounded-4">공정A 제품 품질 예측</a>
+                </li>
+                <li>
+                    <a th:href="@{/process/b/predict}" class="btn btn-outline-main px-4 py-2 mx-2 my-2 rounded-4">공정B 제품 불량여부 예측</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!-- 관리자용 접근 메뉴 끝-->
+    <hr class="mx-4">
+    <!-- 맨 위로 이동 버튼 -->
+    <div class="text-end py-3">
+        <a role="button" class="btn btn-main rounded-4 mx-4" href="#page-top">맨 위로 돌아가기</a>
+        <a role="button" class="btn btn-main rounded-4 me-4" th:href="@{/}">홈으로 돌아가기</a>
+    </div>
+</div>
+<!-- 추가 스크립트 시작 -->
+<script th:inline="javascript" layout:fragment="script">
+
+    // 아코디언 차트 영역 모음
+    // 1. 전체 제품 상태별 차트용 script
+    const chartDataA = JSON.parse([[${chartDataA}]]);
+    console.log("chartDataA: ", chartDataA);
+
+    const ctx1 = document.getElementById('allProductChart').getContext('2d');
+
+    const statusChart = new Chart(ctx1, {
+        type: 'bar',
+        data: chartDataA,
+        options: {
+            responsive: true,
+            onClick: function (){
+                window.location.href = '/';
+            },
+            plugins: {
+                legend: {
+                    display: false // 데이터셋 라벨 표시여부 설정
+                },
+                title: {
+                    display: false,
+                    text: '전체 제품 상태'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed.y}건`;
+                        }
+                    }
+                },
+                // 차트 내부의 라벨 설정 - 별도 import 사용.
+                datalabels: {
+                    anchor: 'center',
+                    align: 'center',
+                    color: '#ffffff',
+                    font: {
+                        size: 20,
+                        weight: 'bold'
+                    },
+                    // 라벨 내용 표시 설정 formatter
+                    formatter: function(value) {
+                        return value === 0 ? null : value;
+                    }
+                }
+            },
+            scales: {
+                x: {title: {
+                        display: false,
+                        text: '상태'
+                    },
+                    ticks: {
+                        font: {
+                            size:14,
+                            weight: 'bold',
+                            family: 'Arial'
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '건수'
+                    },
+                    ticks: {
+                        precision: 0,
+                        font: {
+                            size: 12,
+                            family: 'Arial'
+                        }
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+
+    // 2. 품목별 차트용 script
+    const chartDataB = JSON.parse([[${chartDataB}]]);
+    const ctx2 = document.getElementById('productNameChart').getContext('2d');
+    let chartInstanceB;
+
+    console.log(chartDataB);
+
+    // 셀렉트 태그에서 값이 변경될 때마다 실행되는 메서드
+    document.getElementById('productSelect').addEventListener('change', function () {
+        const selected = this.value;
+
+        // 항상 이전 차트 제거
+        if (chartInstanceB) {
+            chartInstanceB.destroy();
+        }
+
+        // 제품 정보가 없으면 p태그에 메시지만 보여주고 return
+        if (!selected || !chartDataB[selected]) {
+            document.getElementById('nonProduct').textContent='제품이 없습니다.';
+            return;
+        }
+
+        // 제품 정보가 존재하면 p태그 값 초기화
+        document.getElementById('nonProduct').textContent='';
+
+        // 존재하는 제품 정보로 차트 형성
+        const data = chartDataB[selected];
+
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: ['총합','정상', '에러'],
+                datasets: [{
+                    label: `품목계열 : ${selected} (공정 ${data.process})`,
+                    data: [data.total, data.ok, data.ng],
+                    backgroundColor: ['#ff8a44','#4caf50', '#f44336']
+                }]
+            },
+            options: {
+                responsive: true,
+                onClick: function (){
+                    window.location.href = '/order/list';
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position:'bottom',
+                        labels: {
+                            boxWidth: 0,
+                            padding: 15,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+
+
+                    },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        color: '#ffffff',
+                        font: {
+                            size: 20,
+                            weight: 'bold'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size:14,
+                                weight: 'bold',
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        };
+
+        chartInstanceB = new Chart(ctx2, chartConfig);
+
+    });
+
+
+    // 3. 주문별 차트용 script
+    const chartDataC = JSON.parse([[${chartDataC}]]);
+    const ctx3 = document.getElementById('orderChart').getContext('2d');
+    let chartInstanceC;
+
+    console.log(chartDataC);
+
+    // 셀렉트 태그에서 값이 변경될 때마다 실행되는 메서드
+    document.getElementById('orderSelect').addEventListener('change', function () {
+        const selectedId = Number(this.value);
+
+        // 항상 이전 차트 제거
+        if (chartInstanceC) {
+            chartInstanceC.destroy();
+        }
+
+        // 주문 정보가 없으면 p태그에 메시지만 보여주고 return
+        if (isNaN(selectedId) || !chartDataC[selectedId]){
+            document.getElementById('nonOrder').textContent='주문이 없습니다.';
+            return;
+        }
+
+        // 제품 정보가 존재하면 p태그 값 초기화
+        document.getElementById('nonOrder').textContent='';
+
+        // 존재하는 제품 정보로 차트 형성
+
+        const data = chartDataC[selectedId];
+
+        const productName = data.productName;
+        const productLabel = data.productLabel;
+
+        // 제품 정보가 없으면 p태그에 메시지만 보여주고 return
+        if (data.total==0){
+            document.getElementById('nonOrder').textContent='공정 준비중.';
+            return;
+        }
+
+        // 제품 정보가 존재하면 p태그 값 초기화
+        document.getElementById('nonOrder').textContent='';
+
+        // 존재하는 제품 정보로 차트 형성
+
+        const chartConfigC = {
+            type: 'bar',
+            data: {
+                labels: ['총합','정상', '에러'],
+                datasets: [{
+                    label: `${productLabel}`,
+                    data: [data.total, data.ok, data.ng],
+                    backgroundColor: ['#ff8a44','#4caf50', '#f44336']
+                }]
+            },
+            options: {
+                responsive: true,
+                onClick: function (){
+                    if(productName === 'LAMP_COVER'){
+                        window.location.href=`/process/b/${selectedId}`;
+                    }else {
+                        window.location.href=`/process/a/${selectedId}`;
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position:'bottom',
+                        display: true,
+                        labels: {
+                            boxWidth: 0,
+                            padding: 15,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                        }
+                    },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        color: '#ffffff',
+                        font: {
+                            size: 20,
+                            weight: 'bold'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size:14,
+                                weight: 'bold',
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        };
+
+        chartInstanceC = new Chart(ctx3, chartConfigC);
+
+    });
+
+    // 4. 회사별 차트용 script
+
+    const chartDataD = [[${chartDataD}]];
+    let chartInstanceD;
+
+    document.getElementById('companySelect').addEventListener('change', e => {
+        const comp = e.target.value;
+        const ctx = document.getElementById('companyChartCanvas').getContext('2d');
+
+        // 항상 이전 차트 제거
+        if (chartInstanceD) {
+            chartInstanceD.destroy();
+        }
+
+        // 제품 정보가 없으면 p태그에 메시지만 보여주고 return
+        if (!comp || !chartDataD[comp]){
+            document.getElementById('nonCompany').textContent='고객이 없습니다.';
+            return;
+        }
+
+        // 제품 정보가 존재하면 p태그 값 초기화
+        document.getElementById('nonCompany').textContent='';
+
+        // 존재하는 고객 정보로 차트 형성
+        if (comp && chartDataD[comp]) {
+            const cfg = JSON.parse(chartDataD[comp]);
+
+            const companyColors = ['#ff8a44','#4caf50','#f44336','#f39c12','#2196f3','#9c27b0'];
+            const chartconfig = {
+                type: 'bar',
+                data:{
+                    labels: cfg.labels,
+                    datasets: [{
+                        label: cfg.datasets[0].label,
+                        data: cfg.datasets[0].data,
+                        backgroundColor: companyColors.slice(0, cfg.labels.length)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                boxWidth: 0,
+                                padding:15,
+                                font: {
+                                    size: 20,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    // 차트 클릭 시 해당 회사 고객 관리 페이지로 이동
+                    onClick: () => {
+                        window.location.href = `/customers?company=${comp}`;
+
+                    }
+                }
+            };
+            chartInstanceD = new Chart(ctx, chartconfig);
+        } else {
+            // 선택 해제 시 차트만 제거
+            if (chartInstanceD) chartInstanceD.destroy();
+        }
+    });
+
+
+    // 제품별 기본 차트
+    document.getElementById('productSelect').dispatchEvent(new Event('change'));
+    // 주문별 기본 메시지
+    document.getElementById('orderSelect').dispatchEvent(new Event('change'));
+    // 회사별 기본 메시지
+    document.getElementById('companySelect').dispatchEvent(new Event('change'));
+
+
+    // 아코디언 크기에 맞추어 차트 크기 동적 변동 script
+    // 1번 차트
+    const resizeObserver1 = new ResizeObserver(() => {
+        if (statusChart) {
+            statusChart.resize();
+        }
+    });
+    resizeObserver1.observe(document.getElementById('collapseOne'));
+
+    // 2번 차트
+    const resizeObserver2 = new ResizeObserver(() => {
+        if (chartInstanceB) {
+            chartInstanceB.resize();
+        }
+    });
+    resizeObserver2.observe(document.getElementById('collapseTwo'));
+
+
+    // 3번 차트
+    const resizeObserver3 = new ResizeObserver(() => {
+        if (chartInstanceC) {
+            chartInstanceC.resize();
+        }
+    });
+    resizeObserver3.observe(document.getElementById('collapseThree'));
+
+    // 4번 차트
+    const resizeObserver4 = new ResizeObserver(() => {
+        if (chartInstanceD) {
+            chartInstanceD.resize();
+        }
+    });
+    resizeObserver4.observe(document.getElementById('collapseFour'));
+
+    // 아코디언 펼침 시 강제-change 로직
+    ['Two','Three','Four'].forEach(idx => {
+        document.getElementById(`collapse${idx}`)
+            .addEventListener('shown.bs.collapse', () => {
+                const selId = idx === 'Two'
+                    ? 'productSelect'
+                    : idx === 'Three'
+                        ? 'orderSelect'
+                        : 'companySelect';
+                document.getElementById(selId)
+                    .dispatchEvent(new Event('change'));
+            });
+    });
+</script>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<main class="container mt-4" layout:fragment="content">
+    <div class="card container text-center login-card mt-5">
+        <div class="card-body mt-3">
+            <h3 class="text-center fw-bold mt-2 mb-5">재료 정보 수정</h3>
+            <form th:action="@{/material/{materialId}/update(materialId=${materialForm.id})}"
+                  th:object="${materialForm}" method="post" class="py-2 col-md-8 text-center container">
+                <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}" role="alert">
+                    <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold" th:for="*{materialName}">원재료</label>
+                    <select th:field="*{materialName}" th:errorclass="field-error" class="form-select">
+                        <option value="">원재료를 선택하세요</option>
+                        <option th:each="name : ${T(com.intarea.intarea.domain.MaterialName).values()}"
+                                th:value="${name}" th:text="${name}"></option>
+                    </select>
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold" th:for="*{quantity}">수량</label>
+                    <input type="number" class="form-control" th:field="*{quantity}" th:errorclass="field-error"
+                           placeholder="수량을 입력하세요">
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold" th:for="*{company}">거래처</label>
+                    <select th:field="*{company}" th:errorclass="field-error" class="form-select">
+                        <option value="">거래처를 선택하세요</option>
+                        <option th:each="company : ${T(com.intarea.intarea.domain.Company).values()}"
+                                th:value="${company}" th:text="${company}"></option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-point w-100">수정</button>
+                        <a th:href="@{/material/list}" class="btn btn-secondary w-100 mt-2">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

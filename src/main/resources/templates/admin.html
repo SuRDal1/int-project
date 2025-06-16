@@ -1,0 +1,619 @@
+<html id="page-top"  layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <!-- 접속시 표시 팝업 시작 -->
+    <div id="layerPopup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeLayerPopup()">&times;</span>
+            <img src="/image/loopy.webp" alt="이벤트 배너" style="width: 100%; height: auto;">
+            <!-- 체크박스 및 버튼 -->
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+                <label>
+                    <input type="checkbox" id="noShowToday"> 하루동안 이 창 보지 않기
+                </label>
+                <button class="btn btn-outline-dark btn-sm" onclick="closeLayerPopup()">닫기</button>
+            </div>
+        </div>
+    </div>
+    <!-- 접속시 표시 팝업 끝 -->
+    <!-- 본문 영역 시작 -->
+    <div>
+        <h1 class="fw-bold"><i class="fa-solid fa-house me-3"></i>관리자 홈</h1>
+        <!-- 현황판 영역 시작 -->
+        <div class="justify-content-center">
+            <!-- 현재 시작 표시란 시작 -->
+            <h2 id="now" class="fw-bold text-center py-5" th:text="${#temporals.format(today, 'yyyy-MM-dd HH:mm:ss')}"></h2>
+            <!-- 현재 시작 표시란 끝 -->
+            <!-- 현황판 카드 시작 -->
+            <div class="border border-dark-subtle rounded-5 mx-5 py-5">
+                <!-- 진척도 바 및 간이공정 영역 시작 -->
+                <div class="row justify-content-center my-3 mx-3">
+                    <!-- 각 진척도 바 영역 시작 -->
+                    <div class="col-lg-8 py-4">
+                        <!-- 생산률 -->
+                        <div>
+                            <h5 class="fw-bold mb-3">금일 생산률</h5>
+                            <div class="progress" style="height: 40px;">
+                                <div class="progress-bar bg-success"
+                                     role="progressbar"
+                                     id="okProgress"
+                                     th:style="'width:' + ${okPercent} + '%' + '; font-size: 16px; font-weight: bold;'"
+                                     th:text="${okPercent + '% (' + todayOk + '/' + todayTotal + ')'}">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 불량률 -->
+                        <div class="pt-5">
+                            <h5 class="fw-bold mb-3">금일 불량률</h5>
+                            <div class="progress" style="height: 40px;">
+                                <div class="progress-bar bg-danger"
+                                     role="progressbar"
+                                     id="ngProgress"
+                                     th:style="'width:' + ${ngPercent} + '%' + '; font-size: 16px;  font-weight: bold;'"
+                                     th:text="${ngPercent + '% (' + todayNg + '/' + todayTotal + ')'}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 각 진척도 바 영역 끝 -->
+                    <!-- 실시간 공정 간이표시 영역 시작-->
+                    <div class="col-lg-2">
+                        <div class="p-3 rounded-2 running-box">
+                            <!-- 공정A 파트 -->
+                            <div class="mt-3 mb-5">
+                                <a role="button" href="#processABox" class="btn btn-point w-100 py-2 mb-3">공정A 확인</a>
+                                <div class="border border-dark-subtle rounded-2 text-center p-2 running-show">
+                                    <span id="nowProcessA">유휴</span>
+                                </div>
+                            </div>
+                            <!-- 공정B 파트 -->
+                            <div class="mt-3">
+                                <a role="button" href="#processBBox" class="btn btn-point w-100 py-2 mb-3">공정B 확인</a>
+                                <div class="border border-dark-subtle rounded-2 text-center p-2 running-show">
+                                    <span id="nowProcessB">유휴</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 실시간 공정 간이표시 영역 끝-->
+                </div>
+                <!-- 진척도 바 및 간이공정 영역 끝 -->
+                <!-- 당일 공정 테이블 영역 시작 -->
+                <div class="row my-3 mx-5">
+                    <!-- 당일 주문처 선택 버튼 시작 -->
+                    <div class="d-flex align-items-center my-3">
+                        <label for="orderSelect" class="ms-2 me-2">주문처 선택 : </label>
+                        <select id="orderSelect" class="form-select w-auto" onchange="filterByCompany()">
+                            <option value="">-주문처 선택-</option>
+                            <th:block th:each="orderCompany : ${orderCompanyList}">
+                                <option th:value="${orderCompany.name()}"
+                                        th:text="${orderCompany.label}"
+                                        th:selected="${orderCompany.name() == selectedCompany}">
+                                </option>
+                            </th:block>
+                        </select>
+                        <a role="button" class="btn btn-main ms-4" th:href="@{/order}">제품 주문</a>
+                    </div>
+                    <!-- 당일 주문처 선택 버튼 끝 -->
+                    <!-- 당일 주문 리스트 테이블 시작 -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-nowrap">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>No.</th>
+                                <th>제품명</th>
+                                <th>수량</th>
+                                <th>주문일</th>
+                                <th>공정예정일</th>
+                                <th>담당자</th>
+                                <th>주문처</th>
+                                <th>처리상태</th>
+                                <th>정상품목</th>
+                                <th>불량품목</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each = "order, stat : ${orderList}" class="align-middle" th:attr="data-order-id=${order.id}">
+                                <!-- th:each로 stat(status)를 선언해 순번 추적가능 -->
+                                <th th:text = "${stat.index + 1}"></th>
+                                <th th:text = "${order.productName.getLabel()}"></th>
+                                <td th:text = "${order.orderQuantity}"></td>
+                                <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}"></td>
+                                <td th:text="${#temporals.format(order.processDate, 'yyyy-MM-dd')}"></td>
+                                <th th:text = "${order.users.name}"></th>
+                                <th th:text = "${order.orderCompany.getLabel()}"></th>
+                                <td th:text = "${order.orderState.getLabel()}"></td>
+                                <td th:id="'ok-' + ${order.id}" th:text = "${okMap[order.id]}?:0"></td>
+                                <td th:id="'ng-' + ${order.id}" th:text = "${ngMap[order.id]}?:0"></td>
+                                <!-- 버튼 묶음 -->
+                                <td class="d-flex justify-content-center">
+                                    <!-- 공정A 시작 -->
+                                    <form th:action="@{/process/a/{processId}(processId=${order.id})}" th:method="post" th:if="${order.productName.name()!='LAMP_COVER'}" class="me-2">
+                                        <button type="submit" class="btn btn-warning btn-sm"
+                                                th:classappend="${order.orderState.name() == 'COMPLETED'} ? 'btn-secondary' : 'btn-warning'"
+                                                th:text="'공정시작'"
+                                                th:if="${(order.users.id == session.loginMember.id or session.loginMember.grade.name() == 'MANAGER') and order.orderState.name() == 'PENDING'}">
+                                        </button>
+                                    </form>
+                                    <!-- 공정B 시작 -->
+                                    <form th:action="@{/process/b/{processId}(processId=${order.id})}" th:method="post" th:if="${order.productName.name()=='LAMP_COVER'}" class="me-2">
+                                        <button type="submit" class="btn btn-warning btn-sm"
+                                                th:classappend="${order.orderState.name() == 'COMPLETED'} ? 'btn-secondary' : 'btn-warning'"
+                                                th:text="'공정시작'"
+                                                th:if="${(order.users.id == session.loginMember.id or session.loginMember.grade.name() == 'MANAGER') and order.orderState.name() == 'PENDING'}">
+                                        </button>
+                                    </form>
+                                    <!-- 수정 / 삭제 버튼 -->
+                                    <div th:if="${(order.users.id == session.loginMember.id or session.loginMember.grade.name() == 'MANAGER') and order.orderState.name() == 'PENDING'}" class="d-flex">
+                                        <!-- 수정 -->
+                                        <a th:href="@{/order/update/{orderId}(orderId=${order.id})}"
+                                           class="btn btn-point btn-sm me-2">
+                                            수정
+                                        </a>
+                                        <!-- 취소(삭제) -->
+                                        <button type="button" class="btn btn-danger btn-sm me-2"
+                                                data-bs-toggle="modal"
+                                                th:attr="data-bs-target='#cancelModal-' + ${order.id}">
+                                            삭제
+                                        </button>
+                                    </div>
+                                    <!-- 공정A 결과 확인 -->
+                                    <a class="btn btn-primary btn-sm"
+                                       th:if="${order.productName.name() != 'LAMP_COVER' and (order.orderState.name() == 'IN_PROGRESS' or  order.orderState.name() == 'COMPLETED')}"
+                                       th:href="@{/process/a/{id}(id=${order.id})}">
+                                        공정보기
+                                    </a>
+                                    <!-- 공정B 결과 확인 -->
+                                    <a class="btn btn-primary btn-sm"
+                                       th:if="${order.productName.name() == 'LAMP_COVER' and (order.orderState.name() == 'IN_PROGRESS' or order.orderState.name() == 'COMPLETED')}"
+                                       th:href="@{/process/b/{id}(id=${order.id})}">
+                                        공정보기
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- 주문 취소 모달 시작 -->
+                        <div th:each="order : ${orderList}">
+                            <div class="modal fade" th:id="'cancelModal-' + ${order.id}" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form th:action="@{/order/cancel}" method="post">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">주문 취소 확인</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                                <label class="mb-1">취소 사유를 입력해주세요:</label>
+                                                <textarea name="cancelText" class="form-control" rows="3" required></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                                                <button type="submit" class="btn btn-danger">확인</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 주문 취소 모달 끝 -->
+                    </div>
+                    <!-- 당일 주문 리스트 테이블 끝 -->
+                </div>
+                <!-- 당일 공정 테이블 영역 끝 -->
+            </div>
+            <!-- 현황판 카드 끝 -->
+        </div>
+        <!-- 현황판 영역 끝 -->
+        <!-- 실시간 공정 표시 및 본문 하단부 시작-->
+        <div class="mx-4 my-5">
+            <!-- 실시간 공정 표시영역 시작-->
+            <div>
+                <h3 class="fw-bold" id="scrollspyHeading1">🏭 실시간 공정 추이</h3>
+                <!-- 공정 A  -->
+                <div id="processABox" class="row border border-dark-subtle rounded-2 p-3 mx-4 my-5 running-box s-target">
+                    <!-- 좌측 부분 -->
+                    <div class="col-lg-3 ms-2">
+                        <!-- 공정 결과 표시란 -->
+                        <div class="mb-3">
+                            <p class="fw-bold">현재 공정 결과</p>
+                            <div class="border border border-dark-subtle rounded-2 text-center px-3 py-4 running-show">
+                                <p id="statusA" class="fw-bold fs-4 mb-0">유휴</p>
+                            </div>
+                        </div>
+                        <!-- 공정 lot번호 표시란 -->
+                        <div class="mb-3">
+                            <p class="fw-bold">현재 공정 lot번호</p>
+                            <div class="border border border-dark-subtle rounded-2 text-center px-3 py-2 running-show">
+                                <span id="lotNumberA" class="fw-bold text-break">현재 작업중인 품목이 없습니다.</span>
+                            </div>
+                        </div>
+                        <!-- 공정 품목 표시란 -->
+                        <div class="mb-3">
+                            <p class="fw-bold">현재 공정 품목</p>
+                            <div class="border border-dark-subtle rounded-2 text-center px-3 py-2 running-show">
+                                <span id="productNameA" class="fw-bold text-break">현재 작업중인 품목이 없습니다.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 우측 부분 -->
+                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-5">
+                        <div>
+                            <p class="fw-bold">작업 온도</p>
+                            <div class="border border-dark-subtle rounded-circle text-center p-5 mx-2 running-show">
+                                <p id="temp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="fw-bold">작업 압력</p>
+                            <div class="border border-dark-subtle rounded-circle text-center p-5 mx-2 running-show">
+                                <p id="press" class="fw-bold fs-4 mx-3 my-5">압력(kPa)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 공정 B -->
+                <div id="processBBox" class="row border border-dark-subtle rounded-2 p-3 mx-4 my-5 running-box s-target">
+                    <!-- 좌측 부분 -->
+                    <div class="col-lg-3 ms-2 mb-3">
+                        <!-- 공정 결과 표시란 -->
+                        <div class="mb-5">
+                            <p class="fw-bold">현재 공정 결과</p>
+                            <div class="border border-dark-subtle rounded-2 text-center px-3 py-4 running-show">
+                                <p id="statusB" class="fw-bold fs-4 mb-0">유휴</p>
+                            </div>
+                        </div>
+                        <!-- 공정 lot번호 표시란 -->
+                        <div class="mb-3">
+                            <p class="fw-bold">현재 공정 lot번호</p>
+                            <div class="border border-dark-subtle rounded-2 text-center px-3 py-2 running-show">
+                                <span id="lotNumberB" class="fw-bold text-break">현재 작업중인 품목이 없습니다.</span>
+                            </div>
+                        </div>
+                        <!-- 공정 품목 표시란 -->
+                        <div class="mb-3">
+                            <p class="fw-bold">현재 공정 품목</p>
+                            <div class="border border-dark-subtle text-center px-3 py-2 running-show">
+                                <span id="productNameB" class="fw-bold text-break">현재 작업중인 품목이 없습니다.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 우측 부분 -->
+                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-5">
+                        <div class="mx-1 my-2">
+                            <p class="fw-bold">작업간 상열온도(좌)</p>
+                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
+                                <p id="leftHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            </div>
+                        </div>
+                        <div class="mx-1 my-2">
+                            <p class="fw-bold">작업간 상열온도(중)</p>
+                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
+                                <p id="midHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            </div>
+                        </div>
+                        <div class="mx-1 my-2">
+                            <p class="fw-bold">작업간 상열온도(우)</p>
+                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
+                                <p id="rightHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 실시간 공정 표시영역 끝-->
+            <hr class="mx-4">
+            <!-- 이동 버튼 -->
+            <div class="text-end pt-2">
+                <a role="button" class="btn btn-main rounded-4 me-2" th:href="@{/report}">전체 레포트 페이지</a>
+                <a role="button" class="btn btn-main rounded-4 me-4" href="#page-top">맨 위로 돌아가기</a>
+            </div>
+        </div>
+        <!-- 실시간 공정 표시 및 본문 하단부 끝-->
+    </div>
+    <!-- 본문 영역 끝 -->
+</div>
+<!-- 추가 스크립트 시작 -->
+<script th:inline="javascript" layout:fragment="script">
+
+    // 주문처 기반 필터링 script - 전역 선언 되어야만 정상 작동.
+    function filterByCompany() {
+        // select로 선택한 주문처 값
+        const selected = document.getElementById("orderSelect").value;
+        // 현재 페이지의 URL값
+        const url = new URL(window.location.href);
+        // 주문처값이 선택되어 존재한다면
+        if (selected) {
+            // Controller의 @RequestParam값 지정
+            url.searchParams.set('selectedCompany', selected);
+        } else {
+            // 값이 없으면 Controller의 @RequestParam값 제거
+            url.searchParams.delete('selectedCompany');
+        }
+        // @RequestParam 포함된 현재 URL로 이동 - 새로고침과 유사.
+        window.location.href = url.toString();
+    }
+
+    // 팝업 이벤트 - 전역 선언 되어야만 정상 작동.
+    // 팝업 열기
+    const popup = document.getElementById("layerPopup");
+
+    // 팝업 닫기 기능에서 적용한 표시안함기간 변수 및 비교할 오늘 날짜 변수 지정
+    const doNotShow = localStorage.getItem("hidePopupUntil");
+    const now = new Date();
+
+    // 팝업 표시 처리
+    if (!doNotShow || new Date(doNotShow) < now) {
+        popup.style.display = "flex";
+    }
+
+    // 팝업 닫기
+    function closeLayerPopup() {
+        const popup = document.getElementById("layerPopup");
+
+        const checkbox = document.getElementById("noShowToday");
+        // 오늘 하루 보지 않기 체크시 동작
+        if (checkbox.checked) {
+            // 숨길 기간 변수 처리
+            const hideUntil = new Date();
+            hideUntil.setDate(hideUntil.getDate() + 1);
+            // localStorage -> 브라우저 상관없이 도메인 정보 영구저장에 숨길 기간값 저장
+            localStorage.setItem("hidePopupUntil", hideUntil.toISOString());
+        }
+
+        // 팝업 닫기 처리
+        popup.style.display = "none";
+    }
+
+    // 다른 코드가 모두 로딩 완료 후 작동하도록 지정(DOMContentLoaded 사용, 코드 로딩 순서에 의한 Uncaught ReferenceError: SockJS is not defined 오류 방지 차원)
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // 각 공정에 대한 현재 공정값 p/span태그에 표시
+        // WebSocket 연결
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('현재 연결: ' + frame);
+
+            // 실시간 시간 수신
+            stompClient.subscribe('/topic/time', function (message) {
+                const now = message.body;
+                document.getElementById('now').textContent = now;
+            });
+
+            // 공정A 대응
+            stompClient.subscribe('/topic/processA', function (message) {
+
+                // 수신한 값 변수 지정
+                const data = JSON.parse(message.body);
+
+                // 값을 현재 문서의 태그 id를 기준으로 반영
+                document.getElementById('statusA').textContent = data.status==="OK" ? "정상":"불량";
+                document.getElementById('nowProcessA').textContent = data.status==="OK" ? "정상":"불량";
+                document.getElementById('lotNumberA').textContent = data.lotNumber;
+                document.getElementById('productNameA').textContent = data.productName;
+                document.getElementById('temp').textContent = `${data.temp.toFixed(2)}℃`;
+                document.getElementById('press').textContent = `${data.press.toFixed(2)}kPa`;
+                // .toFixed(2) = 소숫점 아래 2자리까지 허용.
+
+
+                // 스타일 적용 위한 요소 변수화
+                const statusElement = document.getElementById('statusA')
+                const nowElement = document.getElementById('nowProcessA')
+                const tempElement = document.getElementById('temp')
+                const statusText = statusElement.textContent
+
+                // 결과에 따라 스타일 적용할 객체 지정
+                const statBox = statusElement.closest('div.border');
+                const statNow = nowElement.closest('div.border');
+                const tempBox = tempElement.closest('div.border');
+
+                // 불량일 때 '결과' 상자 스타일 적용
+                if (statusText === "불량") {
+                    statBox.style.backgroundColor = "#dc3545";
+                    statBox.style.color = "white";
+
+                    // 깜박임 적용 없을 시 깜빡임 적용
+                    if (!statBox.dataset.blinking) {
+                        statBox.dataset.blinking = "true";
+                        statBox.blinkInterval = setInterval(() => {
+                            $(statBox).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                }
+                // 정상 또는 기타 상태인 경우 깜빡임 중지 및 스타일 초기화
+                else {
+                    if (statBox.dataset.blinking) {
+                        clearInterval(statBox.blinkInterval); // 깜빡임 중지
+                        delete statBox.blinkInterval;
+                    }
+                    // 나머지 전부 초기화, 정상일시 배경색만 지정
+                    statBox.style.backgroundColor = statusText === "정상" ? "#4caf50" : "#ffffff";
+                    statBox.style.color = "";
+                    statBox.dataset.blinking = "";
+                }
+
+                // 불량일 때 '상단 결과' 상자 스타일 적용
+                if (statusText === "불량") {
+                    statNow.style.backgroundColor = "#dc3545";
+                    statNow.style.color = "white";
+
+                    // 깜박임 적용 없을 시 깜빡임 적용
+                    if (!statNow.dataset.blinking) {
+                        statNow.dataset.blinking = "true";
+                        statNow.blinkInterval = setInterval(() => {
+                            $(statNow).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                }
+                // 정상 또는 기타 상태인 경우 깜빡임 중지 및 스타일 초기화
+                else {
+                    if (statNow.dataset.blinking) {
+                        clearInterval(statNow.blinkInterval); // 깜빡임 중지
+                        delete statNow.blinkInterval;
+                    }
+                    // 나머지 전부 초기화, 정상일시 배경색만 지정
+                    statNow.style.backgroundColor = statusText === "정상" ? "#4caf50" : "#ffffff";
+                    statNow.style.color = "";
+                    statNow.dataset.blinking = "";
+                }
+
+                // 불량일시 '온도' 상자 스타일 적용 -> 불량 원인 시각화
+                if (statusText === "불량") {
+                    tempBox.style.backgroundColor = "#dc3545";
+                    tempBox.style.color = "white";
+
+                    // 깜박임 적용 없을 시 깜빡임 적용
+                    if (!tempBox.dataset.blinking) {
+                        tempBox.dataset.blinking = "true";
+                        tempBox.blinkInterval = setInterval(() => {
+                            $(tempBox).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                }
+                // 정상 또는 기타 상태인 경우 깜빡임 중지 및 스타일 초기화
+                else {
+                    if (tempBox.dataset.blinking) {
+                        clearInterval(tempBox.blinkInterval); // 깜빡임 중지
+                        delete tempBox.blinkInterval;
+                    }
+                    // 나머지 전부 초기화
+                    tempBox.style.backgroundColor = "#ffffff";
+                    tempBox.style.color = "";
+                    tempBox.dataset.blinking = "";
+                }
+            });
+
+
+            // 공정B 대응
+            stompClient.subscribe('/topic/processB', function (message) {
+
+                // 수신한 값 변수 지정
+                const data = JSON.parse(message.body);
+
+                // 값을 현재 문서의 태그 id를 기준으로 반영
+                document.getElementById('statusB').textContent = data.status==="OK" ? "정상":"불량";
+                document.getElementById('nowProcessB').textContent = data.status==="OK" ? "정상":"불량";
+                document.getElementById('lotNumberB').textContent = data.lotNumber;
+                document.getElementById('productNameB').textContent = data.productName;
+                document.getElementById('leftHighTemp').textContent = `${data.leftHighTemp.toFixed(2)}℃`;
+                document.getElementById('midHighTemp').textContent = `${data.midHighTemp.toFixed(2)}℃`;
+                document.getElementById('rightHighTemp').textContent = `${data.rightHighTemp.toFixed(2)}℃`;
+
+
+                // 스타일 적용 위한 결과 변수화
+                const statusElement = document.getElementById('statusB')
+                const nowElement = document.getElementById('nowProcessB')
+                const midElement = document.getElementById('midHighTemp')
+                const statusText = statusElement.textContent
+
+                // 결과에 따라 스타일 적용할 대상 지정
+                const box = statusElement.closest('div.border');
+                const midbox = midElement.closest('div.border')
+                const statNow = nowElement.closest('div.border');
+
+                // 불량일 때의 '결과'-'상열온도(중)' 상자 스타일 적용
+                if (statusText === "불량") {
+                    box.style.backgroundColor = "#dc3545";
+                    box.style.color = "white";
+                    midbox.style.backgroundColor = "#fff3cd";
+
+                    // 깜박임 적용 없을 시에 결과에 적용
+                    if (!box.dataset.blinking) {
+                        box.dataset.blinking = "true";
+                        box.blinkInterval = setInterval(() => {
+                            $(box).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                    // 깜박임 적용 없을 시에 상열온도에 적용
+                    if (!midbox.dataset.blinking) {
+                        midbox.dataset.blinking = "true";
+                        midbox.blinkInterval = setInterval(() => {
+                            $(midbox).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                }
+                // 정상 또는 기타 상태인 경우 깜빡임 중지 및 스타일 초기화
+                else {
+                    if (box.dataset.blinking) {
+                        clearInterval(box.blinkInterval); // 깜빡임 중지
+                        delete box.blinkInterval;
+                    }
+                    if (midbox.dataset.blinking) {
+                        clearInterval(midbox.blinkInterval); // 깜빡임 중지
+                        delete midbox.blinkInterval;
+                    }
+
+                    // 나머지 전부 초기화, 정상일시 배경색만 지정
+                    box.style.backgroundColor = statusText === "정상" ? "#4caf50" : "#ffffff";
+                    box.style.color = "";
+                    box.dataset.blinking = "";
+                    midbox.style.backgroundColor = "#ffffff";
+                    midbox.style.color = "";
+                    midbox.dataset.blinking = "";
+                }
+
+                // 불량일 때 '상단 결과' 상자 스타일 적용
+                if (statusText === "불량") {
+                    statNow.style.backgroundColor = "#dc3545";
+                    statNow.style.color = "white";
+
+                    // 깜박임 적용 없을 시 깜빡임 적용
+                    if (!statNow.dataset.blinking) {
+                        statNow.dataset.blinking = "true";
+                        statNow.blinkInterval = setInterval(() => {
+                            $(statNow).fadeTo(200, 0.1).fadeTo(200, 1.0);
+                        }, 800);
+                    }
+                }
+                // 정상 또는 기타 상태인 경우 깜빡임 중지 및 스타일 초기화
+                else {
+                    if (statNow.dataset.blinking) {
+                        clearInterval(statNow.blinkInterval); // 깜빡임 중지
+                        delete statNow.blinkInterval;
+                    }
+                    // 나머지 전부 초기화, 정상일시 배경색만 지정
+                    statNow.style.backgroundColor = statusText === "정상" ? "#4caf50" : "#ffffff";
+                    statNow.style.color = "";
+                    statNow.dataset.blinking = "";
+                }
+
+            });
+
+            // 프로그레스 바 업데이트
+            stompClient.subscribe('/topic/progress', function (message) {
+                const data = JSON.parse(message.body);
+
+                document.getElementById('okProgress').style.width = data.okPercent + '%';
+                document.getElementById('okProgress').textContent = data.okPercent + '% (' + data.ok +'/'+data.total +')' ;
+
+                document.getElementById('ngProgress').style.width = data.ngPercent + '%';
+                document.getElementById('ngProgress').textContent = data.ngPercent + '% (' + data.ng +'/'+data.total +')' ;
+            });
+
+            // 테이블 각 주문의 ok, ng값 반영
+            const orderIds = [...document.querySelectorAll("[data-order-id]")]
+                .map(el => el.getAttribute("data-order-id"));
+            // data-order-id 찾기 위해 tbody의 tr태그에 th:attr="data-order-id=${order.id}" 설정 필요!
+
+            orderIds.forEach(orderId => {
+                const socket = new SockJS('/ws');
+                const stompClient = Stomp.over(socket);
+
+                stompClient.connect({}, () => {
+                    stompClient.subscribe(`/topic/orderStats/${orderId}`, (message) => {
+                        const data = JSON.parse(message.body);
+                        document.getElementById(`ok-${data.orderId}`).textContent = data.ok;
+                        document.getElementById(`ng-${data.orderId}`).textContent = data.ng;
+                    });
+                });
+            });
+
+        });
+    });
+
+</script>
+<!-- 차트 사용을 위한 추가 스크립트 끝 -->
+</html>

@@ -1,0 +1,83 @@
+<html id="page-top" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container my-5" layout:fragment="content">
+    <!-- 🧑 회원 이름 표시 -->
+    <h2 class="fw-bold mb-5" th:text="|📄 ${user.name}님의 업무 내역|">회원님의 업무 내역</h2>
+    <!-- 테이블 영역 -->
+    <div>
+        <!-- 제품 주문 테이블 -->
+        <div class="d-flex align-items-center mt-4 mb-3">
+            <h4 class="fw-bold">📦 제품 주문 내역</h4>
+            <a th:href="@{/order/list}" class="btn btn-outline-primary btn-sm ms-auto">제품 리스트</a>
+        </div>
+        <div class="table-responsive-xl mb-5">
+            <table class="table table-bordered table-hover text-nowrap">
+                <thead class="table-dark">
+                    <tr>
+                        <th>날짜</th>
+                        <th>업무</th>
+                        <th>내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd hh:mm')}"></td>
+                        <td>제품 주문</td>
+                        <td th:text="|${order.productName.label} ${order.orderQuantity}개 주문|"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 재료 발주 테이블 -->
+        <div class="d-flex align-items-center mt-4 mb-3">
+            <h4 class="fw-bold">🧪 재료 발주 내역</h4>
+            <a th:href="@{/material/list}" class="btn btn-outline-primary btn-sm ms-auto">재료 리스트</a>
+        </div>
+        <div class="table-responsive-xl mb-5">
+            <table class="table table-bordered table-hover text-nowrap">
+                <thead class="table-dark">
+                    <tr>
+                        <th>날짜</th>
+                        <th>업무</th>
+                        <th>내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="mat : ${materials}">
+                        <td th:text="${#temporals.format(mat.dateTime, 'yyyy-MM-dd hh:mm')}"></td>
+                        <td>재료 발주</td>
+                        <td th:text="|${mat.materialName} ${mat.quantity}개 발주|"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 공정 관리 테이블 -->
+        <div class="d-flex align-items-center mt-4 mb-3">
+            <h4 class="fw-bold">⚙ 공정 관리 내역</h4>
+            <a th:href="@{/order/list}" class="btn btn-outline-primary btn-sm ms-auto">공정</a>
+        </div>
+        <div class="table-responsive-xl mb-5">
+            <table class="table table-bordered table-hover text-nowrap">
+                <thead class="table-dark">
+                    <tr>
+                        <th>날짜</th>
+                        <th>제품명 (공정유형)</th>
+                        <th>내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="proc : ${processes}">
+                        <td th:text="${#temporals.format(proc.dateTime, 'yyyy-MM-dd hh:mm')}"></td>
+                        <td th:text="|${proc.productName} (공정 ${proc.processType})|"></td>
+                        <td th:text="|총 ${proc.total}개 / 정상 ${proc.ok}개 / 불량 ${proc.ng}개|"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- 맨 위로 돌아가기 -->
+    <div class="text-end">
+        <a role="button" class="btn btn-main rounded-4 mx-2" href="#page-top">맨 위로 돌아가기</a>
+        <a role="button" class="btn btn-main rounded-4 mx-2" th:href="@{/admin/user/list}">회원 관리로 돌아가기</a>
+    </div>
+</div>
+</html>

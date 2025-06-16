@@ -1,0 +1,37 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container mt-4" layout:fragment="content">
+    <!-- 카드 시작 -->
+    <div class="card shadow p-4 col-md-8 mx-auto mt-5">
+        <!-- 카드 제목란 -->
+        <div class="card-header bg-white border-0">
+            <h2 class="text-center fw-bold">공지사항 등록</h2>
+        </div>
+        <!-- 카드 본문란 -->
+        <div class="card-body">
+            <form th:object="${noticeForm}" method="post">
+                <!-- 누락값 알림창 -->
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                    <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+                </div>
+                <!-- 제목 입력란 -->
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">제목</label>
+                    <input type="text" class="form-control" th:field="*{title}" id="title">
+                    <div class="field-error text-danger mt-1" th:errors="*{title}"></div>
+                </div>
+                <!-- 내용 입력란 -->
+                <div class="mb-4">
+                    <label for="content" class="form-label fw-bold">내용</label>
+                    <textarea class="form-control" rows="8" th:field="*{content}" id="content"></textarea>
+                    <div class="field-error text-danger mt-1" th:errors="*{content}"></div>
+                </div>
+                <!-- 공지사항 등록 버튼 -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-point btn-lg w-100">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- 카드 끝 -->
+</div>
+</html>

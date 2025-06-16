@@ -1,0 +1,224 @@
+/* 기본 레이아웃용 태그 위치 및 크기 조정*/
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* footer 색상 및 위치 */
+footer{
+    background-color:#071A1B;
+    border-top : 15px solid #071A1B;
+}
+
+main {
+    flex: 1; /*푸터를 밑으로 보내기 위해*/
+}
+
+.bottom-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-bottom: -15px;
+    line-height: 0;
+}
+
+
+
+/* navbar 커스텀 목록 */
+nav {
+    background-color:#071A1B ;
+}
+
+.navbar .nav-link {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:active, .nav-link:hover, .nav-link:focus {
+    color: #FF8A44;
+}
+
+/* btn-main인 경우 흰글자 처리*/
+.btn-main.nav-link:active, .btn-main.nav-link:hover, .btn-main.nav-link:focus {
+    color: #FFFFFF;
+}
+
+.nav-link.dropdown-toggle.show {
+    color: #FF8A44 !important;
+}
+
+.dropdown-item:hover, .dropdown-item:focus{
+    background-color: #FF8A44;
+}
+
+.dropdown-item.active, .dropdown-item:active{
+    background-color: #FF8A44;
+}
+
+/* 햄버거 버튼 색상 조정 */
+.navbar-toggler-icon.nav-main {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+
+/* navbar fixed-top에 따른 각 scrollspy 대상 상단부 margin 설정 = 겹침 방지 */
+
+.s-target {
+    scroll-margin-top: 105px;
+}
+
+
+/* 카드 커스텀 목록*/
+.card {
+    border-radius: 25px;
+}
+
+.login-card {
+    width: 30rem;
+    height: 40rem;
+}
+
+
+
+/* 버튼 커스텀 목록*/
+.btn-main {
+    background-color: #071A1B;
+    color: white;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #FF8A44;
+    border: none;
+}
+
+.btn-outline-main {
+    --bs-btn-color: #071A1B;
+    --bs-btn-border-color: #A5BDBE;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #071A1B;
+    --bs-btn-hover-border-color: #071A1B;
+    --bs-btn-focus-shadow-rgb: 33, 37, 41;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #071A1B;
+    --bs-btn-active-border-color: #071A1B;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #071A1B;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: #071A1B;
+    --bs-gradient: none;
+}
+
+.btn-point {
+    background-color: #FF8A44;
+    --bs-btn-hover-bg: #ffca2c;
+}
+
+.btn-check {
+    border-radius: 25px;
+}
+
+.btn-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    padding: 0;
+    text-align: center;
+    line-height: 50px; /* 수직 중앙 정렬 */
+}
+
+
+/* 누락알림창 색상 */
+.alert {
+    background-color: #FF8A44;
+}
+
+
+/* 테이블 머리글 배경색상 */
+thead {
+    background-color:#071A1B ;
+}
+
+/* 테이블 뒷배경색 설정 */
+.bg-detail {
+    background-color: #FF8A44 !important;
+    color: white;
+}
+
+
+/* 페이지네이션 색상 변경 */
+.pagination .page-link {
+    color: black !important;
+}
+
+/* 활성 페이지 (현재 페이지)도 검정색으로 */
+.pagination .page-item.active .page-link {
+    color: black !important;
+    background-color: #e2e6ea; /* 배경색은 연한 회색 등 원하는 걸로 설정 가능 */
+    border-color: #dee2e6;
+}
+
+/* 비활성 버튼 (이전/다음)도 검정색 */
+.pagination .page-item.disabled .page-link {
+    color: black !important;
+}
+
+/* 페이지 바 및 아이템 색상 설정 */
+.pagination .page-item.active .page-link {
+    background-color: #ff8a44;
+    color: white;               /* 선택된 페이지 번호의 글자색 */
+    border-color: #ff8a44;
+}
+
+
+/* 재료 발주량 예측 웹페이지 요소 색상 설정 */
+#predict-tab .nav-link {
+    color: black;
+    background-color: white;
+    border: 1px solid #ff8a44;
+}
+
+#predict-tab .nav-link.active {
+    background-color: #ff8a44;
+    color: black;
+}
+
+/* 관리자 홈페이지 요소 색상 설정 */
+.running-box {
+    background-color: #f8f9fa;
+}
+
+.running-show {
+    background-color: #ffffff;
+}
+
+/* 관리자 홈페이지 팝업창 설정*/
+.popup {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+}

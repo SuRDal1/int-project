@@ -1,0 +1,183 @@
+<html layout:decorate="~{layout.html}" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container mt-4" layout:fragment="content">
+    <!-- 상단부 -->
+    <h1 class="py-4 fw-bold">
+        <i class="fa-solid fa-industry me-1"></i>
+        공정 결과
+        <span class="fs-4">
+            (주문번호:<span th:text="${ordersId}"></span>,
+            주문수량:<span th:text="${totalOrder}"></span>,
+            정상품목:<span th:text="${okProduct}"></span>)</span>
+    </h1>
+    <!-- 그래프 -->
+    <div class="row mx-3 mb-5">
+        <div>
+            <h3 class="fw-bold">공정그래프</h3>
+            <div class="d-flex flex-column flex-lg-row align-items-center">
+                <div class="col">
+                    <canvas id="myChart1" width="450" height="450"
+                            style="width: 100%; max-width: 450px; height: auto;"></canvas>
+                </div>
+                <div class="mt-5 col">
+                    <canvas id="myChart2" width="500" height="400"
+                            style="width: 100%; max-width: 500px; height: auto;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 테이블 -->
+    <div class="table-responsive rounded mx-3 mb-3">
+        <table class="table table-bordered table-hover text-nowrap">
+            <thead class="table-dark">
+                <tr>
+                    <th>No.</th>
+                    <th>제품명</th>
+                    <th>LotNumber</th>
+                    <th>상열온도(좌) (℃)</th>
+                    <th>상열온도(중) (℃)</th>
+                    <th>상열온도(우) (℃)</th>
+                    <th>상열온도 좌중차 (℃)</th>
+                    <th>상열온도 우중차 (℃)</th>
+                    <th>상열온도 평균 (℃)</th>
+                    <th>공정시각</th>
+                    <th>공정담당자</th>
+                    <th>불량여부</th>
+                    <th>공정결과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each = "processB : ${processBList}" class="" th:classappend="${processB.status.name=='NG'}?'table-danger'">
+                    <!--            <th th:text = "${iterStat.index + 1}"> </th>> 단순히 화면에 보이는 번호(1부터 시작하는) 용도로 사용할거면 이거 사용 가능 사용할거면 위의  each="processA iterstat :${processAList}" 으로 변경-->
+                    <th th:text = "${processB.id}"></th>
+                    <td th:text = "${processB.orders.productName.getLabel()}"></td>
+                    <td th:text = "${processB.lotNumber}"></td>
+                    <td th:text="${T(java.lang.String).format('%.2f', processB.leftHighTemp)}"></td>
+                    <td th:text = "${T(java.lang.String).format('%.2f', processB.midHighTemp)}"></td>
+                    <td th:text = "${T(java.lang.String).format('%.2f', processB.rightHighTemp)}"></td>
+                    <td th:text = "${T(java.lang.String).format('%.2f', processB.midHighTemp - processB.leftHighTemp)}"></td>
+                    <td th:text = "${T(java.lang.String).format('%.2f', processB.midHighTemp - processB.rightHighTemp)}"></td>
+                    <td th:text = "${processB.status.name() == 'WAITING' ? '공정대기중' : T(java.lang.String).format('%.2f', (processB.leftHighTemp+processB.midHighTemp+(processB.midHighTemp+ 1.79086)+processB.rightHighTemp)/4)}"></td>
+                    <td th:text = "${#temporals.format(processB.processDateTime,'yyyy-MM-dd hh:mm')}"></td>
+                    <th th:text = "${processB.users.name}"></th>
+                    <td th:text = "${processB.pass} ? '불량':'해당사항 없음'"></td>
+                    <td th:text="${processB.status.name() == 'WAITING' ? '공정대기중' : (processB.status.name() == 'OK') ? '정상': '불량'}">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-end mx-3">
+        <a type="button" href="/order/list" class="btn btn-secondary">공정리스트</a>
+    </div>
+</div>
+<script th:inline="javascript" layout:fragment="script">
+    /* 데이터 가져오기 */
+    var ok =/*[[${okProduct}]]*/0;
+    var ng =/*[[${ngProduct}]]*/0;
+    var total = ok+ng;
+    /* Chart.js로 차트 그리기 */
+    function drawChart1(ctx, ok, ng) {
+        new Chart(ctx,{
+            type:'pie',
+            data:{
+                labels:['정상','불량'],
+                datasets:[{
+                    label:'공정 상태',
+                    data:[ok,ng], //OK와 ng개수
+                    backgroundColor:['#0dcaf0','#ea868f'], //하늘(OK), 핑크(NG)
+                }]
+            },
+            options:{
+                response:true,
+                plugins: {
+                    datalabels: {
+                        color: '#FFFFFF',
+                        font: {
+                            size: '20',
+                            weight: 'bold'
+                        },
+                        formatter: function (value, context) {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            return label + ': ' + value; // 예: 정상: 10
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+    function drawChart2(ctx, total,ok, ng) {
+        new Chart(ctx ,{
+            type: 'bar',
+            data:{
+                labels:['총합','정상','불량'],
+                datasets:[{
+                    label:'공정 상태',
+                    data:[total,ok,ng], //OK와 ng개수
+                    backgroundColor:['#ff8a44','#0dcaf0','#ea868f'], //포인트색,하늘(OK), 핑크(NG)
+                }]
+            } ,
+            options: {
+                responsive:true,
+                plugins:{
+                    legend: {
+                        position:'bottom'
+                    },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        color: '#ffffff',
+                        font: {
+                            size: '20',
+                            weight: 'bold'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12,
+                                family: 'Arial'
+                            },
+                            color: '#000000'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+    /*차트 생성*/
+    drawChart1(document.getElementById('myChart1'), ok,ng);
+    drawChart2(document.getElementById('myChart2'), total,ok,ng);
+
+    // 공정B 진행간 새로고침 적용
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('웹소켓 연결됨:', frame);
+
+        stompClient.subscribe('/topic/processB', function (message) {
+            console.log("공정B 작업 중 메시지 수신:", message.body);
+            window.location.reload();
+        });
+    });
+
+</script>
+</html>

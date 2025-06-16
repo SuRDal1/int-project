@@ -1,0 +1,35 @@
+<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div class="container" layout:fragment="content">
+<main>
+    <div class="card container login-card mt-5">
+        <form th:action th:Object="${loginForm}" method="post">
+            <div>
+                <h3 class="text-center fw-bold my-5">로그인</h3>
+            </div>
+            <div class="px-4 mb-5">
+                <div class="mb-3">
+                    <label th:for="loginId" class="fw-bold p-1 mb-1">ID</label>
+                    <input type="text" class="form-control" th:field="*{loginId}" placeholder="아이디를 입력해주세요." th:errorclass="field-error">
+                    <div class="field-error" th:errors="*{loginId}"></div>
+                </div>
+                <div>
+                    <label th:for="password" class="fw-bold p-1 mb-1">비밀번호</label>
+                    <input type="password" class="form-control" th:field="*{password}" placeholder="비밀번호를 입력해주세요." th:errorclass="field-error">
+                    <div class="field-error" th:errors="*{password}"></div>
+                </div>
+            </div>
+            <div class="text-center py-3">
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-main btn-lg w-25 me-4">로그인</button>
+                    <button type="reset" class="btn btn-main btn-lg w-25">취소</button>
+                </div>
+
+            </div>
+            <div class="alert  mt-3" role="alert" th:if="${#fields.hasAnyErrors()}">
+                <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}">전체 오류 메세지</div>
+            </div>
+        </form>
+    </div>
+</main>
+</div>
+</html>
