@@ -28,10 +28,10 @@ public class MaterialPredictService {
     private final MaterialPredictRepository materialPredictRepository;
 
     // Flask API 주소 – 3일 뒤 예측 모델
-    private final String FLASK_URLD3 = "http://localhost:5000/predictD3";
+    private final String FLASK_URLD3 = "http://localhost:8000/predictD3";
 
     // Flask API 주소 – 5일 뒤 예측 모델
-    private final String FLASK_URLD5 = "http://localhost:5000/predictD5";
+    private final String FLASK_URLD5 = "http://localhost:8000/predictD5";
 
 
     public MaterialPredictResult getPrediction(MaterialPredictRequest request) {

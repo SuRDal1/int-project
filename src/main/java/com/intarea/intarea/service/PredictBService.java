@@ -22,7 +22,7 @@ public class PredictBService {
     private final PredictionBOrderRecordRepository predictionRecordRepository;
 
     // 예측을 위해 요청을 보낼 Flask API 엔드포인트 주소값을 상수 지정.
-    private final String FLASK_URL = "http://localhost:5000/predictB";
+    private final String FLASK_URL = "http://localhost:8000/predictB";
 
 
     // 예측 요구값을 받아 예측 결과를 반환하는 메서드
