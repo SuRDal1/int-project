@@ -1,70 +1,71 @@
-<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:th="http://www.thymeleaf.org">
+<html layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
 <div class="container text-center " layout:fragment="content">
-    <!-- 카드 시작 -->
-    <div class="card container login-card my-5">
-        <div class="card-body mt-2 p-5">
-            <h3 class="fw-bold mb-5">원재료 주문</h3>
-            <!-- 타임리프 form 시작 -->
-            <form th:action="@{/material}" th:object="${materialForm}" method="post">
-                <!-- 입력 묶음 -->
-                <div class="">
-                    <!-- 원재료 -->
-                    <div class="mb-2">
-                        <p class="text-start fw-bold">원재료</p>
-                        <div class="d-flex justify-content-center">
-                            <div class="d-flex flex-wrap" style="max-width: 360px;">
-                                <div th:each="type : ${material}" style="width: 33.33%; padding: 4px;">
+    <div class="row justify-content-center" style="overflow-x: hidden">
+        <!-- 카드 시작 -->
+        <div class="card col-md-6 my-5">
+            <div class="card-body mt-2 p-5">
+                <h3 class="fw-bold mb-5">원재료 주문</h3>
+                <!-- 타임리프 form 시작 -->
+                <form th:action="@{/material}" th:object="${materialForm}" method="post">
+                    <!-- 입력 묶음 -->
+                    <div class="">
+                        <!-- 원재료 -->
+                        <div class="mb-2">
+                            <p class="text-start fw-bold">원재료</p>
+                            <div class="d-flex flex-wrap justify-content-center">
+                                <div th:each="type : ${material}" style="width: 50%; max-width: 200px; padding: 6px;">
                                     <input type="radio" th:field="*{materialName}" th:value="${type}" class="btn-check" th:id="${type}" autocomplete="off">
                                     <label class="btn btn-outline-dark w-100 me-2" th:for="${type}" th:text="${type}"></label>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- 수량 -->
-                    <div class="pt-2 pb-3">
-                        <label class="fw-bold mb-2 d-block text-start mt-3">수량</label>
-                        <div class="d-flex justify-content-center align-items-center border rounded-pill px-2"
-                             style="width: fit-content; margin: 0 auto;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="decrease-btn">
-                                -
-                            </button>
-                            <input type="text" th:field="*{quantity}" id="quantity-input"
-                                   class="form-control text-center border-0 px-2" value="10" style="width: 60px;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="increase-btn">
-                                +
-                            </button>
+                        <!-- 수량 -->
+                        <div class="pt-2 pb-3">
+                            <label class="fw-bold mb-2 d-block text-start mt-3">수량</label>
+                            <div class="d-flex justify-content-center align-items-center border rounded-pill px-2"
+                                 style="width: fit-content; margin: 0 auto;">
+                                <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="decrease-btn">
+                                    -
+                                </button>
+                                <input type="text" th:field="*{quantity}" id="quantity-input"
+                                       class="form-control text-center border-0 px-2" value="10" style="width: 60px;">
+                                <button type="button" class="btn btn-outline-secondary btn-sm border-0 px-3" id="increase-btn">
+                                    +
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <!-- 거래처 -->
-                    <div class="pt-2">
-                        <label class="fw-bold d-block text-start mb-3">거래처</label>
-                        <div class="d-flex justify-content-center">
-                            <div th:each="company : ${company}">
-                                <input type="radio" th:field="*{company}" th:value="${company}" class="btn-check" th:id="${company}" autocomplete="off">
-                                <label class="btn btn-outline-dark me-2" th:for="${company}" th:text="${company}"></label>
+                        <!-- 거래처 -->
+                        <div class="pt-2">
+                            <label class="fw-bold d-block text-start mb-3">거래처</label>
+                            <div class="d-flex justify-content-center">
+                                <div class="d-flex flex-nowrap overflow-auto" style="gap: 12px; padding-bottom: 6px; max-width: 100%; overflow-x: hidden;">
+                                    <div th:each="company : ${company}" style="flex: 0 0 auto;">
+                                        <input type="radio" th:field="*{company}" th:value="${company}" class="btn-check" th:id="${company}" autocomplete="off">
+                                        <label class="btn btn-outline-dark me-2" th:for="${company}" th:text="${company}"></label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- 버튼 모음 -->
-                <div class="mt-2 px-3 py-5">
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-main">주문</button>
-                        <a role="button" class="btn btn-secondary ms-2" th:href="@{/}">
-                            취소
-                        </a>
+                    <!-- 버튼 모음 -->
+                    <div class="mt-2 px-3 py-5">
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-main">주문</button>
+                            <a role="button" class="btn btn-secondary ms-2" th:href="@{/}">
+                                취소
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <!-- 공란 알림 메세지 -->
-                <div class="alert my-5" role="alert" th:if="${#fields.hasAnyErrors()}">
-                    <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}">전체 오류 메세지</div>
-                </div>
-            </form>
-            <!-- 타임리프 form 끝 -->
+                    <!-- 공란 알림 메세지 -->
+                    <div class="alert my-5" role="alert" th:if="${#fields.hasAnyErrors()}">
+                        <div class="field-error" th:each="err : ${#fields.allErrors()}" th:text="${err}">전체 오류 메세지</div>
+                    </div>
+                </form>
+                <!-- 타임리프 form 끝 -->
+            </div>
         </div>
+        <!-- 카드 끝 -->
     </div>
-    <!-- 카드 끝 -->
 </div>
 <!--개수 증감 버튼용 script-->
 <script layout:fragment="script">

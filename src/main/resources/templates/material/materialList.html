@@ -2,12 +2,12 @@
 <div class="container my-5" layout:fragment="content">
    <h1 class="fw-bold"><i class="fa-solid fa-boxes-stacked me-3" style="color: #a0522d;"></i>재료 리스트</h1>
     <!-- 재료 리스트 상단바 -->
-    <div class="text-end mx-5 mt-4 mb-2">
-        <a th:href="@{/material}" class="btn btn-point">재료 발주</a>
-        <a th:href="@{/material/predict}" class="btn btn-main ms-2">재료 발주 예측하기</a>
+    <div class="text-end mx-md-5 mt-4 mb-2">
+        <a th:href="@{/material}" class="btn btn-point btn-sm">재료 발주</a>
+        <a th:href="@{/material/predict}" class="btn btn-main btn-sm ms-2">재료 발주 예측하기</a>
     </div>
     <!-- 재료 리스트 테이블 -->
-    <div class="table-responsive-xl mx-5">
+    <div class="table-responsive-xl mx-md-5">
         <table class="table table-bordered table-hover text-nowrap">
             <thead class="table-dark">
             <tr>
@@ -86,7 +86,7 @@
         </ul>
     </nav>
     <!-- 재료별 목표 수량 -->
-    <div class="d-flex align-items-center justify-content-center p-4 rounded mt-5">
+    <div class="d-flex align-items-center justify-content-center text-nowrap p-4 rounded mt-5">
         <i class="bi bi-bullseye display-4 text-primary me-3"></i>
         <div>
             <p class="mb-0 fs-5 fw-bold">재료별 보관 목표 수량</p>
@@ -94,7 +94,7 @@
         </div>
     </div>
     <!-- 재료별 총수량 게이지 -->
-    <div class="container text-center row row-cols-1 row-cols-md-3 g-4 mx-3 mt-5">
+    <div class="container text-center row row-cols-1 row-cols-md-3 g-4 mx-md-3 ms-1 mt-5">
         <div class="col" th:each="entry : ${materialQuantityMap.entrySet()}">
             <div class="card shadow h-100 border-0" style="border-radius: 20px;">
                 <div class="card-body">

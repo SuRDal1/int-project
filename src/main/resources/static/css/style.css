@@ -78,13 +78,6 @@ nav {
     border-radius: 25px;
 }
 
-.login-card {
-    width: 30rem;
-    height: 40rem;
-}
-
-
-
 /* 버튼 커스텀 목록*/
 .btn-main {
     background-color: #071A1B;
@@ -221,4 +214,12 @@ thead {
     top: 15px; right: 20px;
     font-size: 24px;
     cursor: pointer;
+}
+
+/* 미디어 쿼리 기반 사이징 */
+
+@media (max-width: 575.98px) {
+    .sm-full-width {
+        width: 100% !important;
+    }
 }

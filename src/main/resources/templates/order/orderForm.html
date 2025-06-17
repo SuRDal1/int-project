@@ -12,7 +12,7 @@
                     <!-- 제품명 -->
                     <div class="mb-3 px-4">
                         <label class="fw-bold d-block mb-3 text-start" style="margin-left: 0.25rem;">제품명</label>
-                        <div class="d-flex flex-wrap " style="gap: 8px;">
+                        <div class="d-flex flex-wrap" style="gap: 8px;">
                             <div th:each="type : ${productName}" style="flex: 1 0 calc(50% - 8px); max-width: 48%;">
                                 <input type="radio"
                                        th:field="*{productName}"
@@ -55,14 +55,14 @@
                     <div class="pt-3 px-4">
                         <p class="text-start fw-bold mb-3">주문처</p>
                         <div class="d-flex justify-content-center">
-                            <div class="d-flex" style="overflow-x: auto; white-space: nowrap; gap: 12px; padding-bottom: 6px;">
+                            <div class="d-flex flex-nowrap overflow-auto" style="gap: 12px; padding-bottom: 6px;">
                                 <!-- 개별 버튼 -->
                                 <div th:each="company : ${orderCompany}">
                                     <input type="radio" th:field="*{orderCompany}" th:value="${company}" class="btn-check company-radio" th:id="${company}" autocomplete="off">
-                                    <label class="btn btn-outline-dark px-4 py-2"
+                                    <label class="btn btn-outline-dark text-nowrap px-3 py-2"
                                            th:for="${company}"
                                            th:text="${company.getLabel()}"
-                                           style="min-width: 90px; font-size: 0.95rem;">
+                                           >
                                     </label>
                                 </div>
                             </div>

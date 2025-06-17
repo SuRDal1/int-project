@@ -2,8 +2,8 @@
 <div class="container my-5" layout:fragment="content">
     <h1 class="fw-bold"><i class="fa-solid fa-house me-3"></i>전체 레포트</h1>
     <!-- 스크롤스파이 시작 -->
-    <nav id="navbar-spy" class="navbar navbar-expand-lg  bg-body-tertiary rounded-2 px-2 py-3 mx-3 my-5" style="border: 1px solid #B8CDCE;">
-        <ul class="nav nav-pills justify-content-start flex-wrap gap-2">
+    <nav id="navbar-spy" class="navbar navbar-expand-lg bg-body-tertiary rounded-2 px-md-2 py-3 mx-3 my-5" style="border: 1px solid #B8CDCE;">
+        <ul class="nav nav-pills flex-column flex-md-row align-items-center align-md-items-start justify-content-center justify-content-md-start gap-2">
             <li class="nav-item mx-3 my-2">
                 <a class="nav-link btn btn-main rounded-4 px-3" href="#scrollspyHeading1">전체 제품 확인</a>
             </li>
@@ -26,7 +26,7 @@
     </nav>
     <!-- 스크롤스파이 끝 -->
     <!--  제품 리포트 차트 영역 시작 -->
-    <div class="accordion mx-4" id="adminAccordion">
+    <div class="accordion mx-md-4" id="adminAccordion">
         <h3 class="fw-bold py-3">🧱 제품 정보 조회</h3>
         <!-- 전체 제품 리스트 아코디언 영역 -->
         <div class="accordion-item s-target" id="scrollspyHeading1">
@@ -39,9 +39,6 @@
                 <div class="accordion-body">
                     <div class="my-5 text-center">
                         <canvas id="allProductChart" class="accordion-chart"></canvas>
-                    </div>
-                    <div class="my-3">
-
                     </div>
                 </div>
             </div>

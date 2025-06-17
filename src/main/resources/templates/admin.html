@@ -24,7 +24,7 @@
             <h2 id="now" class="fw-bold text-center py-5" th:text="${#temporals.format(today, 'yyyy-MM-dd HH:mm:ss')}"></h2>
             <!-- 현재 시작 표시란 끝 -->
             <!-- 현황판 카드 시작 -->
-            <div class="border border-dark-subtle rounded-5 mx-5 py-5">
+            <div class="border border-dark-subtle rounded-5 py-5 sm-full-width">
                 <!-- 진척도 바 및 간이공정 영역 시작 -->
                 <div class="row justify-content-center my-3 mx-3">
                     <!-- 각 진척도 바 영역 시작 -->
@@ -56,7 +56,7 @@
                     </div>
                     <!-- 각 진척도 바 영역 끝 -->
                     <!-- 실시간 공정 간이표시 영역 시작-->
-                    <div class="col-lg-2">
+                    <div class="col-lg-3">
                         <div class="p-3 rounded-2 running-box">
                             <!-- 공정A 파트 -->
                             <div class="mt-3 mb-5">
@@ -78,11 +78,11 @@
                 </div>
                 <!-- 진척도 바 및 간이공정 영역 끝 -->
                 <!-- 당일 공정 테이블 영역 시작 -->
-                <div class="row my-3 mx-5">
+                <div class="row my-3 mx-2 mx-md-4">
                     <!-- 당일 주문처 선택 버튼 시작 -->
-                    <div class="d-flex align-items-center my-3">
-                        <label for="orderSelect" class="ms-2 me-2">주문처 선택 : </label>
-                        <select id="orderSelect" class="form-select w-auto" onchange="filterByCompany()">
+                    <div class="d-flex flex-wrap align-items-center my-3">
+                        <label for="orderSelect" class="mt-2 mx-2">주문처 선택 : </label>
+                        <select id="orderSelect" class="form-select w-auto mt-2" onchange="filterByCompany()">
                             <option value="">-주문처 선택-</option>
                             <th:block th:each="orderCompany : ${orderCompanyList}">
                                 <option th:value="${orderCompany.name()}"
@@ -91,7 +91,7 @@
                                 </option>
                             </th:block>
                         </select>
-                        <a role="button" class="btn btn-main ms-4" th:href="@{/order}">제품 주문</a>
+                        <a role="button" class="btn btn-main ms-sm-4 mt-2" th:href="@{/order}">제품 주문</a>
                     </div>
                     <!-- 당일 주문처 선택 버튼 끝 -->
                     <!-- 당일 주문 리스트 테이블 시작 -->
@@ -102,8 +102,6 @@
                                 <th>No.</th>
                                 <th>제품명</th>
                                 <th>수량</th>
-                                <th>주문일</th>
-                                <th>공정예정일</th>
                                 <th>담당자</th>
                                 <th>주문처</th>
                                 <th>처리상태</th>
@@ -118,8 +116,6 @@
                                 <th th:text = "${stat.index + 1}"></th>
                                 <th th:text = "${order.productName.getLabel()}"></th>
                                 <td th:text = "${order.orderQuantity}"></td>
-                                <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}"></td>
-                                <td th:text="${#temporals.format(order.processDate, 'yyyy-MM-dd')}"></td>
                                 <th th:text = "${order.users.name}"></th>
                                 <th th:text = "${order.orderCompany.getLabel()}"></th>
                                 <td th:text = "${order.orderState.getLabel()}"></td>
@@ -212,12 +208,12 @@
             <div>
                 <h3 class="fw-bold" id="scrollspyHeading1">🏭 실시간 공정 추이</h3>
                 <!-- 공정 A  -->
-                <div id="processABox" class="row border border-dark-subtle rounded-2 p-3 mx-4 my-5 running-box s-target">
+                <div id="processABox" class="row border border-dark-subtle rounded-2 p-3 mt-5 running-box s-target">
                     <!-- 좌측 부분 -->
-                    <div class="col-lg-3 ms-2">
+                    <div class="col-lg-3 ms-md-2">
                         <!-- 공정 결과 표시란 -->
                         <div class="mb-3">
-                            <p class="fw-bold">현재 공정 결과</p>
+                            <p class="fw-bold">A공정 현재 공정 결과</p>
                             <div class="border border border-dark-subtle rounded-2 text-center px-3 py-4 running-show">
                                 <p id="statusA" class="fw-bold fs-4 mb-0">유휴</p>
                             </div>
@@ -238,28 +234,28 @@
                         </div>
                     </div>
                     <!-- 우측 부분 -->
-                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-5">
-                        <div>
+                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-3">
+                        <div class="my-3">
                             <p class="fw-bold">작업 온도</p>
-                            <div class="border border-dark-subtle rounded-circle text-center p-5 mx-2 running-show">
-                                <p id="temp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            <div class="border border-dark-subtle rounded-circle d-flex justify-content-center align-items-center mx-auto running-show" style="width: 150px; height: 150px;">
+                                <p id="temp" class="fw-bold fs-4 m-0">온도(℃)</p>
                             </div>
                         </div>
-                        <div>
+                        <div class="my-3">
                             <p class="fw-bold">작업 압력</p>
-                            <div class="border border-dark-subtle rounded-circle text-center p-5 mx-2 running-show">
-                                <p id="press" class="fw-bold fs-4 mx-3 my-5">압력(kPa)</p>
+                            <div class="border border-dark-subtle rounded-circle d-flex justify-content-center align-items-center mx-auto running-show" style="width: 150px; height: 150px;">
+                                <p id="press" class="fw-bold fs-4 m-0">압력(kPa)</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- 공정 B -->
-                <div id="processBBox" class="row border border-dark-subtle rounded-2 p-3 mx-4 my-5 running-box s-target">
+                <div id="processBBox" class="row border border-dark-subtle rounded-2 p-3 my-5 running-box s-target">
                     <!-- 좌측 부분 -->
-                    <div class="col-lg-3 ms-2 mb-3">
+                    <div class="col-lg-3 ms-md-2 mb-3">
                         <!-- 공정 결과 표시란 -->
                         <div class="mb-5">
-                            <p class="fw-bold">현재 공정 결과</p>
+                            <p class="fw-bold">B공정 현재 공정 결과</p>
                             <div class="border border-dark-subtle rounded-2 text-center px-3 py-4 running-show">
                                 <p id="statusB" class="fw-bold fs-4 mb-0">유휴</p>
                             </div>
@@ -280,34 +276,34 @@
                         </div>
                     </div>
                     <!-- 우측 부분 -->
-                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-5">
-                        <div class="mx-1 my-2">
+                    <div class="col-md d-flex flex-column flex-md-row justify-content-evenly align-items-center py-3 my-3">
+                        <div class="mx-1 my-3">
                             <p class="fw-bold">작업간 상열온도(좌)</p>
-                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
-                                <p id="leftHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            <div class="border border-dark-subtle rounded-circle d-flex justify-content-center align-items-center mx-auto running-show" style="width: 150px; height: 150px;">
+                                <p id="leftHighTemp" class="fw-bold fs-4 m-0">온도(℃)</p>
                             </div>
                         </div>
-                        <div class="mx-1 my-2">
+                        <div class="mx-1 my-3">
                             <p class="fw-bold">작업간 상열온도(중)</p>
-                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
-                                <p id="midHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            <div class="border border-dark-subtle rounded-circle d-flex justify-content-center align-items-center mx-auto running-show" style="width: 150px; height: 150px;">
+                                <p id="midHighTemp" class="fw-bold fs-4 m-0">온도(℃)</p>
                             </div>
                         </div>
-                        <div class="mx-1 my-2">
+                        <div class="mx-1 my-3">
                             <p class="fw-bold">작업간 상열온도(우)</p>
-                            <div class="border border-dark-subtle rounded-circle text-center p-3 running-show">
-                                <p id="rightHighTemp" class="fw-bold fs-4 mx-4 my-5">온도(℃)</p>
+                            <div class="border border-dark-subtle rounded-circle d-flex justify-content-center align-items-center mx-auto running-show" style="width: 150px; height: 150px;">
+                                <p id="rightHighTemp" class="fw-bold fs-4 m-0">온도(℃)</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- 실시간 공정 표시영역 끝-->
-            <hr class="mx-4">
+            <hr class="mx-2">
             <!-- 이동 버튼 -->
             <div class="text-end pt-2">
-                <a role="button" class="btn btn-main rounded-4 me-2" th:href="@{/report}">전체 레포트 페이지</a>
-                <a role="button" class="btn btn-main rounded-4 me-4" href="#page-top">맨 위로 돌아가기</a>
+                <a role="button" class="btn btn-main rounded-4 mt-2 me-md-2" th:href="@{/report}">전체 레포트 페이지</a>
+                <a role="button" class="btn btn-main rounded-4 mt-2" href="#page-top">맨 위로 돌아가기</a>
             </div>
         </div>
         <!-- 실시간 공정 표시 및 본문 하단부 끝-->

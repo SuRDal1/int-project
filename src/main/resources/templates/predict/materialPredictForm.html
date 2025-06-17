@@ -11,7 +11,7 @@
         <input type="hidden" th:field="*{predictType}" value="D3">
 
         <div class="d-flex align-items-baseline">
-            <h3 class="my-5 fw-bold">발주 입력</h3>
+            <h3 class="my-5 me-2 fw-bold">발주 입력</h3>
             <div class="mx-md-2 mx-lg-5">
                 <select class="form-control" id="materialSelect" onchange="syncMaterialName(this.value)" th:field="*{orders[0].materialName}">
                     <option value="">원자재를 선택하세요.</option>
