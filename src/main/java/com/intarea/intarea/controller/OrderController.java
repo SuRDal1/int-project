@@ -212,7 +212,7 @@ public class OrderController {
                 }
             }
         }
-        return "redirect:/order/list";
+        return "redirect:/";
     }
 
     //제품 리스트 열기
